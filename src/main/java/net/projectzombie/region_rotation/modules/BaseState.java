@@ -11,18 +11,45 @@ import java.util.HashMap;
 public class BaseState extends RegionState
 {
     private HashMap<String, AltState> altStates;
+    private AltState backupBaseState;
+    private String currentState;
 
     public BaseState(final String regionName,
+                     final AltState backupBaseState,
                      final String worldName)
     {
         super(regionName, worldName);
+        this.backupBaseState = backupBaseState;
+        this.currentState = regionName;
     }
 
-    public boolean rotateState(final String altStateName) {
-        final AltState swapState = altStates.get(altStateName);
+    public BaseState(final String regionName,
+                     final String worldName,
+                     final String backupRegionName,
+                     final String backupRegionWorldName)
+    {
+        this(regionName, new AltState(backupRegionName, backupRegionWorldName), worldName);
+    }
+
+    public boolean resetBaseState()
+    {
+        return _rotateState(backupBaseState);
+    }
+
+    public boolean rotateState(final String altStateName)
+    {
+        return _rotateState(altStates.get(altStateName));
+    }
+
+    private boolean _rotateState(final AltState swapState)
+    {
         if (swapState == null)
         {
             return false;
+        }
+        else if (this.currentState.equals(swapState.getRegionName()))
+        {
+            return true;
         }
 
         if (swapState.isCuboidRegion() && this.isCuboidRegion())
