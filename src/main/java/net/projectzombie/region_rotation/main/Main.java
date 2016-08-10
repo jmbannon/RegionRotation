@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.projectzombie.dynamic_regions.main;
+package net.projectzombie.region_rotation.main;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

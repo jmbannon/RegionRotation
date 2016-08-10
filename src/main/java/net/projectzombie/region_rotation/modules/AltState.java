@@ -1,4 +1,4 @@
-package net.projectzombie.dynamic_regions.modules;
+package net.projectzombie.region_rotation.modules;
 
 /**
  * Created by jb on 8/9/16.

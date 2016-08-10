@@ -1,14 +1,8 @@
-name: DynamicRegions
-main: net.projectzombie.dynamic_regions.main.Main
+name: RegionRotation
+main: net.projectzombie.region_rotation.main.Main
 version: 1.0
-depend: [WorldEdit,WorldGuard,MythicMobs]
+depend: [WorldEdit,WorldGuard]
 commands:
-  bw:
+  nope:
     description: Memory used storing blocks.
     usage: "Usage: /bw lore"
-  gunsmith:
-    description: Access the gunsmith at spawn to modify weapons.
-    usage: "/gunsmith"
-  gs:
-    description: Access the gunsmith at spawn to modify weapons.
-    usage: "/gs"

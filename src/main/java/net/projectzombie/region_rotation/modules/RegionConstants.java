@@ -1,9 +1,6 @@
-package net.projectzombie.dynamic_regions.modules;
+package net.projectzombie.region_rotation.modules;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 /**
