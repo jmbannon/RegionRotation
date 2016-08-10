@@ -20,11 +20,17 @@ import org.bukkit.World;
 public abstract class RegionWorld
 {
     private final String worldName;
+    private final boolean isValid;
     
     public RegionWorld(final String worldName)
     {
         this.worldName = worldName;
+        this.isValid = this.getWorld() != null && getRegionManager() != null;
     }
+
+    /** @return Whether the object is valid for use or not. */
+    public boolean       isValid()          { return this.isValid; }
+
 
     public String        getWorldName()     { return this.worldName; }
     public World         getWorld()         { return Bukkit.getWorld(worldName); }
