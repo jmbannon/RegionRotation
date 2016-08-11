@@ -15,11 +15,14 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 
 import java.util.TreeSet;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,21 +33,38 @@ public abstract class RegionState extends RegionWorld
     private final String regionName;
     private final RegionType regionType;
     private final boolean isValid;
+    private String rotateBroadcastMessage = null;
 
     public RegionState(final String regionName,
                        final String worldName)
     {
         super(worldName);
-        this.isValid = super.isValid() && this.getProtectedRegion() != null;
         this.regionName = regionName;
         this.regionType = this.getProtectedRegion().getType();
+        this.isValid = super.isValid() && this.regionName != null && this.getProtectedRegion() != null;
     }
 
     /** {@inheritDoc} */
     @Override public boolean isValid() { return this.isValid; }
+    public String getRegionName()      { return this.regionName;      }
+    public RegionType getRegionType()  { return this.getRegionType(); }
+    public String getRotateBroadcastMessage() { return this.rotateBroadcastMessage; }
 
-    public String getRegionName()     { return this.regionName;      }
-    public RegionType getRegionType() { return this.getRegionType(); }
+    public void setRotateBroadcastMessage(final String str)
+    {
+        rotateBroadcastMessage = str;
+    }
+
+    /**
+     * Broadcasts its message to the server. TODO: Console log if fails
+     */
+    public void broadcastMessage()
+    {
+        if (this.rotateBroadcastMessage != null) {
+            Bukkit.broadcastMessage(this.rotateBroadcastMessage);
+        }
+    }
+
     public ProtectedRegion getProtectedRegion()
     {
         return super.getRegionManager().getRegion(regionName);
@@ -114,6 +134,22 @@ public abstract class RegionState extends RegionWorld
         return arr.iterator();
     }
 
+    public ArrayList<Chest> getRegionChests()
+    {
+        final ArrayList<Chest> toRet = new ArrayList<>();
+        final Iterator<Block> blockIter = this.getSortedBlockIterator();
+        Block tmp;
+        while (blockIter.hasNext())
+        {
+            tmp = blockIter.next();
+            if (tmp.getState() instanceof Chest)
+            {
+                toRet.add((Chest)tmp.getState());
+            }
+        }
+        return toRet;
+    }
+
     public boolean canRotate(final RegionState rhs)
     {
         if (rhs == null || !this.isValid || !rhs.isValid)
@@ -144,18 +180,21 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
-    public boolean copyFrom(final RegionState rhs)
+    public boolean copyFrom(final RegionState rhs,
+                            final boolean pasteAir)
     {
-        return _copyPaste(this, rhs);
+        return _copyPaste(this, rhs, pasteAir);
     }
 
-    public boolean pasteTo(final RegionState rhs)
+    public boolean pasteTo(final RegionState rhs,
+                           final boolean pasteAir)
     {
-        return _copyPaste(rhs, this);
+        return _copyPaste(rhs, this, pasteAir);
     }
 
     static private boolean _copyPaste(final RegionState copyState,
-                                      final RegionState pasteState)
+                                      final RegionState pasteState,
+                                      final boolean pasteAir)
     {
         if (!copyState.canRotate(pasteState)) {
             return false;
@@ -172,6 +211,11 @@ public abstract class RegionState extends RegionWorld
             copyMat = copyBlk.getType();
             pasteBlk = copyIter.next();
             pasteMat = pasteBlk.getType();
+
+            if (!pasteAir && pasteMat.equals(Material.AIR))
+            {
+                continue;
+            }
 
             if (!copyMat.equals(pasteMat))
             {

@@ -99,12 +99,28 @@ public class BaseState extends RegionState
     }
 
     /**
+     * Checks to see if BaseState contains a valid AltState.
+     * @param altRegionName WorldGuard region name of alt state.
+     * @return True if BaseState
+     */
+    public boolean containsAltState(final String altRegionName)
+    {
+        return altStates.containsKey(altRegionName) && altStates.get(altRegionName).isValid();
+    }
+
+    /**
      * Resets the BaseState to the backup-region.
      * @return True if the BaseState was reset successfully. False otherwise.
      */
     public boolean resetState()
     {
-        return _rotateState(backupBaseState);
+        final boolean resetAir = true;
+        if (_rotateState(backupBaseState, resetAir))
+        {
+            this.currentState = this.getRegionName();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -112,12 +128,40 @@ public class BaseState extends RegionState
      * @param altStateName Name of the AltState to rotate into the BaseState.
      * @return True if the BaseState was rotated successfully. False otherwise.
      */
-    public boolean rotateState(final String altStateName)
+    public boolean rotateState(final String altStateName,
+                               final boolean rotateAir)
     {
-        return _rotateState(altStates.get(altStateName));
+        final AltState altState = altStates.get(altStateName);
+        if (_rotateState(altState, rotateAir))
+        {
+            this.currentState = altState.getRegionName();
+            return true;
+        }
+        return false;
     }
 
-    private boolean _rotateState(final AltState swapState)
+    /**
+     * Returns the current region within the confines of the BaseState region.
+     * @return Current RegionState.
+     */
+    public RegionState getCurrentState()
+    {
+        if (this.currentState.equals(this.getRegionName()))
+        {
+            return this;
+        }
+        else if (altStates.containsKey(this.currentState))
+        {
+            return altStates.get(this.currentState);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private boolean _rotateState(final AltState swapState,
+                                 final boolean rotateAir)
     {
         if (swapState == null)
         {
@@ -128,6 +172,6 @@ public class BaseState extends RegionState
             return true;
         }
 
-        return this.copyFrom(swapState);
+        return this.copyFrom(swapState, rotateAir);
     }
 }

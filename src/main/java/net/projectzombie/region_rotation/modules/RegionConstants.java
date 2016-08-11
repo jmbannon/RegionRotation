@@ -11,14 +11,14 @@ public class RegionConstants
     private static Plugin PLUGIN = null;
     private static Plugin WG_PLUGIN = null;
 
-    public void initConstants(final Plugin plugin)
+    static public void init(final Plugin plugin)
     {
         PLUGIN = plugin;
         WG_PLUGIN = WGBukkit.getPlugin();
     }
 
-    public Plugin getPlugion()  { return PLUGIN; }
-    public Plugin getWGPlugin() { return WG_PLUGIN; }
+    static public Plugin getPlugion()  { return PLUGIN; }
+    static public Plugin getWGPlugin() { return WG_PLUGIN; }
 
     private RegionConstants() { /* Do nothing. */ }
 }

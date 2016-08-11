@@ -5,6 +5,7 @@
  */
 package net.projectzombie.region_rotation.main;
 
+import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -16,6 +17,7 @@ public class Main extends JavaPlugin
     @Override
     public void onEnable()
     {
+        StateController.init(this);
     }
 
     @Override
