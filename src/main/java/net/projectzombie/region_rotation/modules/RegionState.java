@@ -23,6 +23,7 @@ import org.bukkit.block.Chest;
 import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  *
@@ -36,9 +37,9 @@ public abstract class RegionState extends RegionWorld
     private String rotateBroadcastMessage = null;
 
     public RegionState(final String regionName,
-                       final String worldName)
+                       final UUID worldUID)
     {
-        super(worldName);
+        super(worldUID);
         this.regionName = regionName;
         this.regionType = this.getProtectedRegion().getType();
         this.isValid = super.isValid() && this.regionName != null && this.getProtectedRegion() != null;

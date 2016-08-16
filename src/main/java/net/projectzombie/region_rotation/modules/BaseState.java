@@ -1,6 +1,9 @@
 package net.projectzombie.region_rotation.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jmbannon on 8/9/16.
@@ -14,11 +17,14 @@ public class BaseState extends RegionState
     static private class AltState extends RegionState
     {
         public AltState(final String regionName,
-                        final String worldName)
+                        final UUID worldUID)
         {
-            super(regionName, worldName);
+            super(regionName, worldUID);
         }
     }
+
+    public String getBackupBaseStateID()
+    { return toString(backupBaseState.getRegionName(), backupBaseState.getWorldUID()); }
 
     /** Used to store valid AltStates that the BaseState can switch to. */
     private HashMap<String, AltState> altStates;
@@ -34,14 +40,14 @@ public class BaseState extends RegionState
 
     /**
      * @param regionName WorldGuard region name of BaseState region
-     * @param worldName World name that region is located in.
+     * @param worldUID World UUID that region is located in.
      * @param backupBaseState Backup State for BaseState.
      */
     private BaseState(final String regionName,
-                     final String worldName,
+                     final UUID worldUID,
                      final AltState backupBaseState)
     {
-        super(regionName, worldName);
+        super(regionName, worldUID);
         this.altStates = new HashMap<>();
         this.backupBaseState = backupBaseState;
         this.currentState = regionName;
@@ -55,16 +61,16 @@ public class BaseState extends RegionState
      * before use.
      *
      * @param regionName WorldGuard region name of BaseState region
-     * @param worldName World name that region is located in.
+     * @param worldUID World UUID that region is located in.
      * @param backupRegionName WorldGuard region name of BaseState's backup-region.
-     * @param backupRegionWorldName World name that backup-region is located in.
+     * @param backupRegionWorldUID World UUID that backup-region is located in.
      */
     public BaseState(final String regionName,
-                     final String worldName,
+                     final UUID worldUID,
                      final String backupRegionName,
-                     final String backupRegionWorldName)
+                     final UUID backupRegionWorldUID)
     {
-        this(regionName, worldName, new AltState(backupRegionName, backupRegionWorldName));
+        this(regionName, worldUID, new AltState(backupRegionName, backupRegionWorldUID));
     }
 
     /** {@inheritDoc} */
@@ -73,13 +79,13 @@ public class BaseState extends RegionState
     /**
      * Adds an AltState that can be rotated with BaseState.
      * @param altRegionName WorldGuard region name of the AltState.
-     * @param altRegionWorldName World name of the AltState region.
+     * @param altRegionWorldUID World UUID of the AltState region.
      * @return True if the AltState was valid and added successfully. False otherwise.
      */
     public boolean addAltState(final String altRegionName,
-                               final String altRegionWorldName)
+                               final UUID altRegionWorldUID)
     {
-        final AltState altState = new AltState(altRegionName, altRegionWorldName);
+        final AltState altState = new AltState(altRegionName, altRegionWorldUID);
         if (this.canRotate(altState))
         {
             altStates.put(altRegionName, altState);
@@ -106,6 +112,15 @@ public class BaseState extends RegionState
     public boolean containsAltState(final String altRegionName)
     {
         return altStates.containsKey(altRegionName) && altStates.get(altRegionName).isValid();
+    }
+
+    public List<String> getAltStateIDs()
+    {
+        List<String> holder = new ArrayList<>();
+        for (AltState state : altStates.values())
+            holder.add(toString(state.getRegionName(), state.getWorldUID()));
+
+        return holder;
     }
 
     /**
@@ -174,4 +189,16 @@ public class BaseState extends RegionState
 
         return this.copyFrom(swapState, rotateAir);
     }
+
+    public String toString()
+    { return getRegionName() + "," + getWorld().getUID(); }
+
+    public static String toString(String regionNameOut, UUID worldUIDOut)
+    { return regionNameOut + "," + worldUIDOut; }
+
+    public static String toRegion(String iD)
+    { return iD.split(",").length > 1 ? iD.split(",")[0] : null; }
+
+    public static UUID toWorldUID(String iD)
+    { return iD.split(",").length > 1 ? UUID.fromString(iD.split(",")[1]) : null; }
 }
