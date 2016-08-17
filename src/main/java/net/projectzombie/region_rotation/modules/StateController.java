@@ -1,6 +1,8 @@
 package net.projectzombie.region_rotation.modules;
 
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import net.projectzombie.region_rotation.file.FileRead;
+import net.projectzombie.region_rotation.file.FileWrite;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -40,8 +42,16 @@ public class StateController
         PLUGIN = plugin;
         WG_PLUGIN = WGBukkit.getPlugin();
         this.states = new HashMap<>();
-        // TODO: read file from config
+
+        for (BaseState baseState : FileRead.readBaseStates())
+            states.put(baseState.getRegionName(), baseState);
     }
+
+    /** To be used onDisable() to ensure all BaseStates are there after restart. *
+     * @Return If the save was successful.
+     */
+    public boolean saveBaseStatesToDisc()
+    { return FileWrite.writeBaseStates(states.values()); }
 
     /**
      * Adds a BaseState to the StateController
@@ -59,13 +69,31 @@ public class StateController
     }
 
     /**
-     * Removes a BaseState from the StateController.
+     * Removes a BaseState from the StateController and erases it from disc.
      * @param baseStateRegionName Name of the BaseState region.
      * @return Removed BaseState if it exists. Null otherwise.
      */
     public BaseState removeBaseState(final String baseStateRegionName)
     {
         return states.remove(baseStateRegionName);
+    }
+
+    /**
+     * Removes a BaseState from the StateController and erases it from disc.
+     * @param baseStateRegionName Name of the BaseState region.
+     * @return Removed BaseState if it exists. Null otherwise.
+     */
+    public boolean removeBaseStateFully(final String baseStateRegionName)
+    {
+        BaseState baseState = states.get(baseStateRegionName);
+
+        // Erase from disc
+        boolean successful = FileWrite.flushBaseState(baseState, baseState.getWorld());
+
+        //Erase from ram
+        removeBaseState(baseStateRegionName);
+
+        return successful;
     }
 
     /**

@@ -4,7 +4,9 @@ import net.projectzombie.region_rotation.modules.BaseState;
 import org.bukkit.World;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
 
 /**
  * Created by maxgr on 8/16/2016.
@@ -17,7 +19,7 @@ public class FileWrite
      * @param world The world the BaseState resides in.
      * @return If the save was successful.
      */
-    public static boolean writeBaseState(BaseState baseState, World world)
+    public static boolean writeBaseState(final BaseState baseState, final World world)
     {
         FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
         fileBuffer.safeLoadFile(world);
@@ -37,11 +39,26 @@ public class FileWrite
         return fileBuffer.saveFiles();
     }
 
+    public static boolean writeBaseStates(final Collection<BaseState> baseStates)
+    {
+        boolean successfulSave = true;
+        if (baseStates != null)
+        {
+            for (BaseState baseState : baseStates)
+            {
+                if (!writeBaseState(baseState, baseState.getWorld()))
+                    successfulSave = false;
+            }
+        }
+
+        return successfulSave;
+    }
+
     /**
      * Used to erase the BaseState from disc.
      * @Return If the save was successful.
      */
-    public static boolean flushBaseState(BaseState baseState, World world)
+    public static boolean flushBaseState(final BaseState baseState, final World world)
     {
         FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
         fileBuffer.safeLoadFile(world);

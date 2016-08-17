@@ -15,9 +15,9 @@ import java.util.UUID;
 public class FileBuffer
 {
     public FileConfiguration file;
-    public JavaPlugin plugin;
-    public String fileName;
-    public String fileFolder;
+    private JavaPlugin plugin;
+    private String fileName;
+    private String fileFolder;
 
     /**
      * Description: Constructor for the UtilUGFiles, sets up file dependencies.

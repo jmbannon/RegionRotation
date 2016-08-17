@@ -25,6 +25,7 @@ public class Main extends JavaPlugin
     @Override
     public void onDisable()
     {
+        StateController.instance().saveBaseStatesToDisc();
         this.getLogger().info("DynamicRegions disabled!");
     }
 }

@@ -14,6 +14,9 @@ public class FilePath
 
     public static String fileName() { return fileName; }
 
+    public static String baseStates()
+    { return BASE_STATE_ROOT; }
+
     public static String baseState(String regionName, UUID worldUID)
     { return BASE_STATE_ROOT + BaseState.toString(regionName, worldUID); }
 
