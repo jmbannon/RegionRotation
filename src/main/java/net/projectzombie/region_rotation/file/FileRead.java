@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Created by maxgr on 8/16/2016.
+ * Used to read in BaseStates.
+ * @Author Gephery
  */
 public class FileRead
 {

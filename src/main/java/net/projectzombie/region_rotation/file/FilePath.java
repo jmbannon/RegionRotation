@@ -5,7 +5,8 @@ import net.projectzombie.region_rotation.modules.BaseState;
 import java.util.UUID;
 
 /**
- * Created by maxgr on 8/16/2016.
+ * Collection of useful file paths in the BaseState configurations.
+ * @Author Gephery
  */
 public class FilePath
 {

@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * Created by maxgr on 7/15/2016.
+ * FileBuffers read in a FileConfiguration and store all the necessary workings to write and save
+ *  to that file.
+ *  @Author Gephery
  */
 public class FileBuffer
 {

@@ -9,7 +9,8 @@ import java.util.List;
 
 
 /**
- * Created by maxgr on 8/16/2016.
+ * Used for saving BaseStates.
+ * @Author Gephery
  */
 public class FileWrite
 {
@@ -39,6 +40,11 @@ public class FileWrite
         return fileBuffer.saveFiles();
     }
 
+    /**
+     * Writes a Collection of BaseStates to disc.
+     * @param baseStates The BaseStates being saved.
+     * @return If the save was successful.
+     */
     public static boolean writeBaseStates(final Collection<BaseState> baseStates)
     {
         boolean successfulSave = true;

@@ -7,7 +7,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 
 /**
- * Created by maxgr on 8/16/2016.
+ * Used keep track of the FileBuffers and fetch them.
+ * @Author Gephery
  */
 public class FileBufferController
 {
