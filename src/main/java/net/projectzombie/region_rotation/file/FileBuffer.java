@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * FileBuffers read in a FileConfiguration and store all the necessary workings to write and save
  *  to that file.
- *  @Author Gephery
+ *  @author Gephery
  */
 public class FileBuffer
 {
@@ -43,31 +43,34 @@ public class FileBuffer
      * Main way to check if the fileFolder is correct for that world.
      * **IMPORTANT** To insure right file, use before every write and read. O(1) runtime.
      * @param world The world the file belongs to.
+     * @return If the load was a success. 
      */
-    public void safeLoadFile(World world)
+    public boolean safeLoadFile(World world)
     {
-        String newFileFolder = formatFileFolder(world);
-        if (!isFileLoaded() || !isFileFolderSame(newFileFolder))
-            discLoadFile(newFileFolder);
+        return safeLoadFile(world.getUID()); 
     }
 
     /**
      * Main way to check if the fileFolder is correct for that world.
      * **IMPORTANT** To insure right file, use before every write and read. O(1) runtime.
      * @param worldUID The UUID of the world the file belongs to.
+     * @return If the load was a success. 
      */
-    public void safeLoadFile(UUID worldUID)
+    public boolean safeLoadFile(UUID worldUID)
     {
         String newFileFolder = formatFileFolder(worldUID);
         if (!isFileLoaded() || !isFileFolderSame(newFileFolder))
-            discLoadFile(newFileFolder);
+        {
+            return discLoadFile(newFileFolder);
+        }
+        return true; 
     }
 
-    /** @Return If the file is not null. */
+    /** @return If the file is not null. */
     private boolean isFileLoaded()
     { return this.file != null; }
 
-    /** @Return If the file folder is same as one in field. */
+    /** @return If the file folder is same as one in field. */
     private boolean isFileFolderSame(String cFileFolder)
     { return this.fileFolder.equals(cFileFolder); }
 
@@ -82,7 +85,7 @@ public class FileBuffer
 
     /**
      * Saves file to disc.
-     * @Return If the save was successful.
+     * @return If the save was successful.
      */
     public boolean saveFiles()
     {
@@ -97,15 +100,15 @@ public class FileBuffer
         }
     }
 
-    /** @Return If the path going to not be null. */
+    /** @return If the path going to not be null. */
     public boolean isSafePath(String path)
     { return file.get(path) != null; }
 
-    /** @Return The correct format for the file folder, going by world. */
+    /** @return The correct format for the file folder, going by world. */
     private String formatFileFolder(World world)
     { return formatFileFolder(world.getUID()); }
 
-    /** @Return The correct format for the file folder, going by world. */
+    /** @return The correct format for the file folder, going by world. */
     private String formatFileFolder(UUID worldUID)
     { return "/" + worldUID + "/"; }
 

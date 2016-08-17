@@ -6,7 +6,7 @@ import java.util.UUID;
 
 /**
  * Collection of useful file paths in the BaseState configurations.
- * @Author Gephery
+ * @author Gephery
  */
 public class FilePath
 {

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Used for saving BaseStates.
- * @Author Gephery
+ * @author Gephery
  */
 public class FileWrite
 {
@@ -62,7 +62,7 @@ public class FileWrite
 
     /**
      * Used to erase the BaseState from disc.
-     * @Return If the save was successful.
+     * @return If the save was successful.
      */
     public static boolean flushBaseState(final BaseState baseState, final World world)
     {

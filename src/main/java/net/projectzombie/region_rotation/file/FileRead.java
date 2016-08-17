@@ -11,7 +11,7 @@ import java.util.UUID;
 
 /**
  * Used to read in BaseStates.
- * @Author Gephery
+ * @author Gephery
  */
 public class FileRead
 {
@@ -95,7 +95,7 @@ public class FileRead
 
     /**
      * Reads all BaseStates in every world.
-     * @return
+     * @return All the BaseStates on the server.
      */
     public static Set<BaseState> readBaseStates()
     {

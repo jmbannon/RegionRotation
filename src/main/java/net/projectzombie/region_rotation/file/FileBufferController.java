@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 /**
  * Used keep track of the FileBuffers and fetch them.
- * @Author Gephery
+ * @author Gephery
  */
 public class FileBufferController
 {
@@ -41,7 +41,7 @@ public class FileBufferController
         this.fileBuffers = new HashMap<>();
     }
 
-    /** @Return FileBuffer for that world. */
+    /** @return FileBuffer for that world. */
     public FileBuffer getFile(World world)
     {
         String fileID = FileBuffer.buildID(world, FilePath.fileName());
