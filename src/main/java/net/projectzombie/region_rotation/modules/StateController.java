@@ -6,6 +6,7 @@ import net.projectzombie.region_rotation.file.FileWrite;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by jb on 8/10/16.
@@ -64,6 +65,16 @@ public class StateController
         {
             states.put(state.getRegionName(), state);
             return true;
+        }
+        return false;
+    }
+
+    public boolean addAltState(final String regionName, final String altRegionName,
+                               final UUID altRegionWorldUID)
+    {
+        if (states.get(regionName).isValid())
+        {
+            return states.get(regionName).addAltState(altRegionName, altRegionWorldUID);
         }
         return false;
     }

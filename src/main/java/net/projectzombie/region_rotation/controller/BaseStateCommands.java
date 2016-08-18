@@ -1,0 +1,118 @@
+package net.projectzombie.region_rotation.controller;
+
+import net.projectzombie.region_rotation.modules.BaseState;
+import net.projectzombie.region_rotation.modules.StateController;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+
+import static net.projectzombie.region_rotation.controller.BaseStateText.*;
+
+/**
+ * Location of all the commands for BaseState changes in-game.
+ */
+public class BaseStateCommands implements CommandExecutor
+{
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length > 0)
+        {
+            if (args[0].equals(ADD_BASESTATE_CMD) && sender.hasPermission(ADD_BASESTATE_PERM))
+            {
+                // /rr add <regionName> <worldName> <backup regionName> <backUpWorldName>
+                boolean success = false;
+                BaseState baseState = null;
+                if (args.length == 5)
+                {
+                    String regionName = args[1];
+                    World world = Bukkit.getWorld(args[2]);
+                    String backupRegionName = args[3];
+                    World backupWorld = Bukkit.getWorld(args[4]);
+                    if (world != null && backupWorld != null)
+                    {
+                        baseState = new BaseState(regionName,
+                                                  world.getUID(),
+                                                  backupRegionName,
+                                                  backupWorld.getUID());
+                        success = StateController.instance().addBaseState(baseState);
+                    }
+                }
+                sender.sendMessage(addBaseState(baseState, success));
+            }
+            else if (args[0].equals(ADD_ALT_BASESTATE_CMD) &&
+                    sender.hasPermission(ADD_ALT_BASESTATE_PERM))
+            {
+                boolean success = false;
+                if (args.length == 4)
+                {
+                    // /rr addalt <regionName> <altRegionName> <altRegionWorld>
+                    String regionName = args[1];
+                    String altRegionName = args[2];
+                    World altRegionWorld = Bukkit.getWorld(args[3]);
+                    if (altRegionWorld != null)
+                    {
+                        success = StateController.instance().addAltState(regionName,
+                                altRegionName,
+                                altRegionWorld.getUID());
+                    }
+                }
+                sender.sendMessage(addAltState(success));
+            }
+            else if (args[0].equals(REMOVE_BASESTATE_CMD) &&
+                     sender.hasPermission(REMOVE_BASESTATE_PERM))
+            {
+                boolean success = false;
+                if (args.length == 2)
+                {
+                    // /rr remove <regionName>
+                    String regionName = args[1];
+                    success = StateController.instance().removeBaseStateFully(regionName);
+                }
+                sender.sendMessage(removeBaseState(success));
+            }
+            else if (args[0].equals(RESET_BASESTATE_CMD) &&
+                    sender.hasPermission(RESET_BASESTATE_PERM))
+            {
+                boolean success = false;
+                if (args.length == 3)
+                {
+                    // /rr reset <regionName>
+                    String regionName = args[1];
+                    boolean broadcast = Boolean.valueOf(args[2]);
+                    success = StateController.instance().resetBaseState(regionName,
+                                                                        broadcast);
+                }
+                sender.sendMessage(resetBaseState(success));
+            }
+            else if (args[0].equals(ROTATE_BASESTATE_CMD) &&
+                    sender.hasPermission(ROTATE_BASESTATE_PERM))
+            {
+                boolean success = false;
+                if (args.length == 5)
+                {
+                    // /rr rotate <regionName> <altRegionName> <rotate air> <broadcast>
+                    String regionName = args[1];
+                    String altRegionName = args[2];
+                    boolean rotateAir = Boolean.valueOf(args[3]);
+                    boolean broadcast = Boolean.valueOf(args[4]);
+
+                    success = StateController.instance().rotateBaseStateBroadcast(regionName,
+                                                                                  altRegionName,
+                                                                                  rotateAir,
+                                                                                  broadcast);
+                }
+                sender.sendMessage(resetBaseState(success));
+            }
+        }
+        else
+        {
+            sender.sendMessage(commandHelp());
+        }
+
+
+        return false;
+    }
+}

@@ -104,11 +104,11 @@ public class FileBuffer
     public boolean isSafePath(String path)
     { return file.get(path) != null; }
 
-    /** @return The correct format for the file folder, going by world. */
+    /** @return The correct formatForChat for the file folder, going by world. */
     private String formatFileFolder(World world)
     { return formatFileFolder(world.getUID()); }
 
-    /** @return The correct format for the file folder, going by world. */
+    /** @return The correct formatForChat for the file folder, going by world. */
     private String formatFileFolder(UUID worldUID)
     { return "/" + worldUID + "/"; }
 
