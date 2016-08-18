@@ -5,7 +5,8 @@ import net.projectzombie.region_rotation.modules.BaseState;
 import org.bukkit.ChatColor;
 
 /**
- * Created by maxgr on 8/17/2016.
+ * Used to access lots of static command specifics.
+ * @author Gephery
  */
 public class BaseStateText
 {
@@ -70,7 +71,7 @@ public class BaseStateText
     public static String resetBaseState(final boolean success)
     { return formatForChat(RESET_BASESTATE_SUCCESS, RESET_BASESTATE_HELP, success); }
 
-    public static String rotateBaseState(final BaseState baseState, final boolean success)
+    public static String rotateBaseState(final boolean success)
     { return formatForChat(ROTATE_BASESTATE_SUCCESS, ROTATE_BASESTATE_HELP, success); }
 
     public static String commandHelp()

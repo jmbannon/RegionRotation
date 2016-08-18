@@ -12,6 +12,7 @@ import static net.projectzombie.region_rotation.controller.BaseStateText.*;
 
 /**
  * Location of all the commands for BaseState changes in-game.
+ * @author Gephery
  */
 public class BaseStateCommands implements CommandExecutor
 {
@@ -22,15 +23,16 @@ public class BaseStateCommands implements CommandExecutor
         {
             if (args[0].equals(ADD_BASESTATE_CMD) && sender.hasPermission(ADD_BASESTATE_PERM))
             {
-                // /rr add <regionName> <worldName> <backup regionName> <backUpWorldName>
                 boolean success = false;
                 BaseState baseState = null;
                 if (args.length == 5)
                 {
+                    // Convert all the inputs
                     String regionName = args[1];
                     World world = Bukkit.getWorld(args[2]);
                     String backupRegionName = args[3];
                     World backupWorld = Bukkit.getWorld(args[4]);
+
                     if (world != null && backupWorld != null)
                     {
                         baseState = new BaseState(regionName,
@@ -48,7 +50,6 @@ public class BaseStateCommands implements CommandExecutor
                 boolean success = false;
                 if (args.length == 4)
                 {
-                    // /rr addalt <regionName> <altRegionName> <altRegionWorld>
                     String regionName = args[1];
                     String altRegionName = args[2];
                     World altRegionWorld = Bukkit.getWorld(args[3]);
@@ -67,7 +68,6 @@ public class BaseStateCommands implements CommandExecutor
                 boolean success = false;
                 if (args.length == 2)
                 {
-                    // /rr remove <regionName>
                     String regionName = args[1];
                     success = StateController.instance().removeBaseStateFully(regionName);
                 }
@@ -79,7 +79,6 @@ public class BaseStateCommands implements CommandExecutor
                 boolean success = false;
                 if (args.length == 3)
                 {
-                    // /rr reset <regionName>
                     String regionName = args[1];
                     boolean broadcast = Boolean.valueOf(args[2]);
                     success = StateController.instance().resetBaseState(regionName,
@@ -93,7 +92,6 @@ public class BaseStateCommands implements CommandExecutor
                 boolean success = false;
                 if (args.length == 5)
                 {
-                    // /rr rotate <regionName> <altRegionName> <rotate air> <broadcast>
                     String regionName = args[1];
                     String altRegionName = args[2];
                     boolean rotateAir = Boolean.valueOf(args[3]);
@@ -104,7 +102,7 @@ public class BaseStateCommands implements CommandExecutor
                                                                                   rotateAir,
                                                                                   broadcast);
                 }
-                sender.sendMessage(resetBaseState(success));
+                sender.sendMessage(rotateBaseState(success));
             }
         }
         else
