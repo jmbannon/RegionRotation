@@ -110,7 +110,6 @@ public class BaseStateCommands implements CommandExecutor
             sender.sendMessage(commandHelp());
         }
 
-
-        return false;
+        return true;
     }
 }

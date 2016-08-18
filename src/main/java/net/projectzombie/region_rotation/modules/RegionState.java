@@ -127,9 +127,11 @@ public abstract class RegionState extends RegionWorld
         }
         arr = new TreeSet<>();
         regionWorld = super.getLocalWorld();
-
+        // TODO: For some reason all blocks a null. 
         for (BlockVector block : region) {
-            arr.add(BukkitUtil.toBlock(new BlockWorldVector(regionWorld, block)));
+            BlockWorldVector bv = new BlockWorldVector(regionWorld, block);
+            if (bv != null)
+                arr.add(BukkitUtil.toBlock(bv));
         }
 
         return arr.iterator();

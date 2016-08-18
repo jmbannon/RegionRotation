@@ -51,7 +51,7 @@ public class BaseState extends RegionState
         this.altStates = new HashMap<>();
         this.backupBaseState = backupBaseState;
         this.currentState = regionName;
-        this.isValid = this.isValid()
+        this.isValid = super.isValid()
                 && this.backupBaseState.isValid()
                 && this.canRotate(this.backupBaseState);
     }
