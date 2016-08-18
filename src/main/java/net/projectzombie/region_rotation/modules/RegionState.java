@@ -16,14 +16,12 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 
-import java.util.TreeSet;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *
@@ -112,7 +110,7 @@ public abstract class RegionState extends RegionWorld
     {
         final LocalWorld regionWorld;
         final Region region;
-        final TreeSet<Block> arr;
+        final List<Block> arr;
         if (this.isCuboidRegion())
         {
             region = getCuboidRegion();
@@ -125,13 +123,18 @@ public abstract class RegionState extends RegionWorld
         {
             return null;
         }
-        arr = new TreeSet<>();
+        arr = new ArrayList<>();
         regionWorld = super.getLocalWorld();
-        // TODO: For some reason all blocks a null. 
+
         for (BlockVector block : region) {
-            BlockWorldVector bv = new BlockWorldVector(regionWorld, block);
-            if (bv != null)
-                arr.add(BukkitUtil.toBlock(bv));
+            Block block1 = (new Location(BukkitUtil.toWorld(regionWorld),
+                                                            block.getX(),
+                                                            block.getY(),
+                                                            block.getZ())).getBlock();
+            //Block blockB = BukkitUtil.toBlock(new BlockWorldVector(regionWorld, block));
+            Bukkit.getPlayer("Gephery").sendMessage(block1 + "");
+            arr.add(block1);
+
         }
 
         return arr.iterator();
@@ -163,7 +166,7 @@ public abstract class RegionState extends RegionWorld
         if (this.isCuboidRegion() && rhs.isCuboidRegion())
         {
             CuboidRegion lhsR = this.getCuboidRegion();
-            CuboidRegion rhsR = this.getCuboidRegion();
+            CuboidRegion rhsR = rhs.getCuboidRegion();
             return lhsR.getLength() == rhsR.getLength()
                     && lhsR.getWidth() == rhsR.getWidth()
                     && lhsR.getHeight() == rhsR.getHeight();
@@ -171,7 +174,7 @@ public abstract class RegionState extends RegionWorld
         else if (this.isPolygonRegion() && rhs.isPolygonRegion())
         {
             Polygonal2DRegion lhsR = this.getPolygonRegion();
-            Polygonal2DRegion rhsR = this.getPolygonRegion();
+            Polygonal2DRegion rhsR = rhs.getPolygonRegion();
             return lhsR.getLength() == rhsR.getLength()
                     && lhsR.getWidth() == rhsR.getWidth()
                     && lhsR.getHeight() == rhsR.getHeight()
@@ -186,7 +189,7 @@ public abstract class RegionState extends RegionWorld
     public boolean copyFrom(final RegionState rhs,
                             final boolean pasteAir)
     {
-        return _copyPaste(this, rhs, pasteAir);
+        return _copyPaste(rhs, this, pasteAir);
     }
 
     public boolean pasteTo(final RegionState rhs,
@@ -199,7 +202,7 @@ public abstract class RegionState extends RegionWorld
                                       final RegionState pasteState,
                                       final boolean pasteAir)
     {
-        if (!copyState.canRotate(pasteState)) {
+        if (copyState == null || !copyState.canRotate(pasteState)) {
             return false;
         }
 
@@ -212,7 +215,7 @@ public abstract class RegionState extends RegionWorld
         {
             copyBlk = copyIter.next();
             copyMat = copyBlk.getType();
-            pasteBlk = copyIter.next();
+            pasteBlk = pasteIter.next();
             pasteMat = pasteBlk.getType();
 
             if (!pasteAir && pasteMat.equals(Material.AIR))

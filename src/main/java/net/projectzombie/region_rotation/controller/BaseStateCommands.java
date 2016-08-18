@@ -83,6 +83,7 @@ public class BaseStateCommands implements CommandExecutor
                     boolean broadcast = Boolean.valueOf(args[2]);
                     success = StateController.instance().resetBaseState(regionName,
                                                                         broadcast);
+                    sender.sendMessage(success + "");
                 }
                 sender.sendMessage(resetBaseState(success));
             }

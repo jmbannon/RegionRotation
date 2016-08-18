@@ -29,13 +29,14 @@ public class FileWrite
         List<String> altIDs = new ArrayList<>();
 
         // Write alts
-        fileBuffer.file.set(FilePath.altStates(baseState), baseState.getAltStateIDs());
+        fileBuffer.getFile().set(FilePath.altStates(baseState), baseState.getAltStateIDs());
 
         // Write backup
         fileBuffer.file.set(FilePath.backupState(baseState), baseState.getBackupBaseStateID());
 
         // Write current state
-        fileBuffer.file.set(FilePath.currentState(baseState), baseState.getCurrentState());
+        String pathToCurrentS = FilePath.currentState(baseState);
+        fileBuffer.file.set(pathToCurrentS, baseState.getCurrentState().getRegionName());
 
         return fileBuffer.saveFiles();
     }

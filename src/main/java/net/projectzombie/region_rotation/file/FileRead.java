@@ -27,15 +27,19 @@ public class FileRead
         fileBuffer.safeLoadFile(world);
         UUID worldUID = world.getUID();
         BaseState baseState = null;
-        if (fileBuffer.isSafePath(FilePath.baseState(regionName, worldUID)))
+        String pathToBaseState = FilePath.baseState(regionName, worldUID);
+        String pathToBackupS = FilePath.backupState(regionName, worldUID);
+        String pathToCurrentS = FilePath.currentState(regionName, worldUID);
+        String pathToAltState = FilePath.altStates(regionName, worldUID);
+        if (fileBuffer.isSafePath(pathToBaseState))
             {
-            List<String> altStateIDs = fileBuffer.file.getStringList(FilePath.altStates(regionName, worldUID));
+            List<String> altStateIDs = fileBuffer.file.getStringList(pathToAltState);
 
-            String backupBaseStateID = fileBuffer.file.getString(FilePath.baseState(regionName, worldUID));
+            String backupBaseStateID = fileBuffer.file.getString(pathToBackupS);
             String backupBaseRegion = BaseState.toRegion(backupBaseStateID);
             UUID backupBaseUID = BaseState.toWorldUID(backupBaseStateID);
 
-            String currentState = fileBuffer.file.getString(FilePath.currentState(regionName, worldUID));
+            String currentState = fileBuffer.file.getString(pathToCurrentS);
 
             // Constructing baseState base.
             baseState = new BaseState(regionName, worldUID, backupBaseRegion, backupBaseUID);
@@ -46,6 +50,7 @@ public class FileRead
                 for (String altStateID : altStateIDs)
                     baseState.addAltState(BaseState.toRegion(altStateID), BaseState.toWorldUID(altStateID));
             }
+            //baseState.rotateState(currentState, false); // Don't erase built things.
         }
         return baseState != null ? baseState : null;
     }

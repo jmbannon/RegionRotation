@@ -1,7 +1,6 @@
 package net.projectzombie.region_rotation.file;
 
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,14 +15,14 @@ import java.util.UUID;
  */
 public class FileBuffer
 {
-    public FileConfiguration file;
+    public YamlConfiguration file;
     private JavaPlugin plugin;
     private String fileName;
     private String fileFolder;
 
     /**
      * Description: Constructor for the UtilUGFiles, sets up file dependencies.
-     * @param plugin = Plugin managing the files, a JavaPlugin.
+     * @param plugin = JavaPlugin managing the files, a JavaPlugin.
      * @param fileName = Name of file, sould be name.yml
      */
     public FileBuffer(JavaPlugin plugin, String fileName)
@@ -35,9 +34,9 @@ public class FileBuffer
     }
 
     public final String getFileFolder()         { return fileFolder; }
-    public final JavaPlugin getPlugin()         { return plugin; }
+    public final JavaPlugin getJavaPlugin()         { return plugin; }
     public final String getFileName()           { return fileName; }
-    public final FileConfiguration getFile()    { return file; }
+    public final YamlConfiguration getFile()    { return file; }
 
     /**
      * Main way to check if the fileFolder is correct for that world.
@@ -68,17 +67,17 @@ public class FileBuffer
 
     /** @return If the file is not null. */
     private boolean isFileLoaded()
-    { return this.file != null; }
+    { return file != null; }
 
     /** @return If the file folder is same as one in field. */
     private boolean isFileFolderSame(String cFileFolder)
-    { return this.fileFolder.equals(cFileFolder); }
+    { return fileFolder.equals(cFileFolder); }
 
     /** Used to update the referenced file from disc, will create if there is none. */
     private boolean discLoadFile(String cFileFolder)
     {
-        this.fileFolder = cFileFolder;
-        this.file = YamlConfiguration.loadConfiguration(
+        fileFolder = cFileFolder;
+        file = YamlConfiguration.loadConfiguration(
                 new File(plugin.getDataFolder() + cFileFolder, fileName));
         return saveFiles();
     }

@@ -43,11 +43,13 @@ public class StateController
     {
         PLUGIN = plugin;
         WG_PLUGIN = WGBukkit.getPlugin();
-        this.states = new HashMap<>();
+        states = new HashMap<>();
+
         Set<BaseState> baseStates = FileRead.readBaseStates();
         if (baseStates != null)
             for (BaseState baseState : FileRead.readBaseStates())
                 states.put(baseState.getRegionName(), baseState);
+
     }
 
     /** To be used onDisable() to ensure all BaseStates are there after restart. *
