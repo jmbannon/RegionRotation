@@ -6,3 +6,6 @@ commands:
   nope:
     description: Memory used storing blocks.
     usage: "Usage: /bw lore"
+  rr:
+    description: Full suite of Region Rotation cmds.
+    usage: "/rr <add:addalt:remove:reset:rotate"

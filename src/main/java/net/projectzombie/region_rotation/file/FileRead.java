@@ -26,26 +26,28 @@ public class FileRead
         FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
         fileBuffer.safeLoadFile(world);
         UUID worldUID = world.getUID();
+        BaseState baseState = null;
+        if (fileBuffer.isSafePath(FilePath.baseState(regionName, worldUID)))
+            {
+            List<String> altStateIDs = fileBuffer.file.getStringList(FilePath.altStates(regionName, worldUID));
 
-        List<String> altStateIDs = fileBuffer.file.getStringList(FilePath.altStates(regionName, worldUID));
+            String backupBaseStateID = fileBuffer.file.getString(FilePath.baseState(regionName, worldUID));
+            String backupBaseRegion = BaseState.toRegion(backupBaseStateID);
+            UUID backupBaseUID = BaseState.toWorldUID(backupBaseStateID);
 
-        String backupBaseStateID = fileBuffer.file.getString(FilePath.baseState(regionName, worldUID));
-        String backupBaseRegion = BaseState.toRegion(backupBaseStateID);
-        UUID backupBaseUID = BaseState.toWorldUID(backupBaseStateID);
+            String currentState = fileBuffer.file.getString(FilePath.currentState(regionName, worldUID));
 
-        String currentState = fileBuffer.file.getString(FilePath.currentState(regionName, worldUID));
+            // Constructing baseState base.
+            baseState = new BaseState(regionName, worldUID, backupBaseRegion, backupBaseUID);
 
-        // Constructing baseState base.
-        BaseState baseState = new BaseState(regionName, worldUID, backupBaseRegion, backupBaseUID);
-
-        // Adding all the altStates
-        if (altStateIDs != null)
-        {
-            for (String altStateID : altStateIDs)
-                baseState.addAltState(BaseState.toRegion(altStateID), BaseState.toWorldUID(altStateID));
+            // Adding all the altStates
+            if (altStateIDs != null)
+            {
+                for (String altStateID : altStateIDs)
+                    baseState.addAltState(BaseState.toRegion(altStateID), BaseState.toWorldUID(altStateID));
+            }
         }
-
-        return baseState;
+        return baseState != null ? baseState : null;
     }
 
     /**
@@ -77,7 +79,9 @@ public class FileRead
      */
     public static Set<BaseState> readBaseStates(World world)
     {
-        FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
+        FileBuffer fileBuffer = FileBufferController
+                                .instance()
+                                .getFile(world);
         fileBuffer.safeLoadFile(world);
         Set<BaseState> baseStates = new HashSet<>();
         Set<String> baseStateNames = readBaseStateNames(world);
@@ -101,7 +105,11 @@ public class FileRead
     {
         Set<BaseState> baseStates = new HashSet<>();
         for (World world : Bukkit.getWorlds())
-            baseStates.addAll(readBaseStates(world));
+        {
+            Set<BaseState> tempBaseStates = readBaseStates(world);
+            if (tempBaseStates != null)
+                baseStates.addAll(readBaseStates(world));
+        }
 
         return baseStates;
     }

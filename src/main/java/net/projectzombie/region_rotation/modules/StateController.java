@@ -6,6 +6,7 @@ import net.projectzombie.region_rotation.file.FileWrite;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -43,9 +44,10 @@ public class StateController
         PLUGIN = plugin;
         WG_PLUGIN = WGBukkit.getPlugin();
         this.states = new HashMap<>();
-
-        for (BaseState baseState : FileRead.readBaseStates())
-            states.put(baseState.getRegionName(), baseState);
+        Set<BaseState> baseStates = FileRead.readBaseStates();
+        if (baseStates != null)
+            for (BaseState baseState : FileRead.readBaseStates())
+                states.put(baseState.getRegionName(), baseState);
     }
 
     /** To be used onDisable() to ensure all BaseStates are there after restart. *

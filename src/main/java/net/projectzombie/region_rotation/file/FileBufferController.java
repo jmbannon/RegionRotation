@@ -45,11 +45,8 @@ public class FileBufferController
     public FileBuffer getFile(World world)
     {
         String fileID = FileBuffer.buildID(world, FilePath.fileName());
-
-        if (fileBuffers.containsKey(fileID))
-            return fileBuffers.get(fileID);
-        else
-            return fileBuffers.put(fileID,
-                                    new FileBuffer((JavaPlugin) PLUGIN, FilePath.fileName()));
+        if (!fileBuffers.containsKey(fileID))
+            fileBuffers.put(fileID, new FileBuffer((JavaPlugin) PLUGIN, FilePath.fileName()));
+        return fileBuffers.get(fileID);
     }
 }

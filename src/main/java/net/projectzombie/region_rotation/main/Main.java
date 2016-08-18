@@ -21,8 +21,8 @@ public class Main extends JavaPlugin
     @Override
     public void onEnable()
     {
-        StateController.init(this);
         FileBufferController.init(this);
+        StateController.init(this);
 
         this.getCommand(COMMAND_ROOT).setExecutor(new BaseStateCommands());
     }
