@@ -29,7 +29,7 @@ public class Main extends JavaPlugin
 
         // Adding perms.
         String[] perms = {ADD_BASESTATE_PERM, ADD_ALT_BASESTATE_PERM, REMOVE_BASESTATE_PERM,
-                          RESET_BASESTATE_PERM, ROTATE_BASESTATE_PERM, INFO_PERM};
+                          RESET_BASESTATE_PERM, ROTATE_BASESTATE_PERM, INFO_BASESTATE_PERM};
         PluginManager pM = getServer().getPluginManager();
         for (String perm : perms)
             pM.addPermission(new Permission(perm));

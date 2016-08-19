@@ -118,4 +118,21 @@ public class FileRead
 
         return baseStates;
     }
+
+    /**
+     * Reads all BaseStates in every world.
+     * @return All the BaseStates on the server.
+     */
+    public static Set<String> readBaseStatesNames()
+    {
+        Set<String> baseStates = new HashSet<>();
+        for (World world : Bukkit.getWorlds())
+        {
+            Set<String> tempBaseStates = readBaseStateNames(world);
+            if (tempBaseStates != null)
+                baseStates.addAll(tempBaseStates);
+        }
+
+        return baseStates;
+    }
 }

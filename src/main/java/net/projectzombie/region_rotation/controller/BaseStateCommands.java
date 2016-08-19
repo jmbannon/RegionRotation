@@ -1,6 +1,7 @@
 package net.projectzombie.region_rotation.controller;
 
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import net.projectzombie.region_rotation.file.FileRead;
 import net.projectzombie.region_rotation.modules.BaseState;
 import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.Bukkit;
@@ -106,8 +107,8 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(rotateBaseState(success));
             }
-            else if (args[0].equals(INFO_CMD) &&
-                    sender.hasPermission(INFO_PERM))
+            else if (args[0].equals(INFO_BASESTATE_CMD) &&
+                    sender.hasPermission(INFO_BASESTATE_PERM))
             {
                 boolean success = false;
                 BaseState baseState = null;
@@ -118,6 +119,19 @@ public class BaseStateCommands implements CommandExecutor
                     success = baseState != null;
                 }
                 sender.sendMessage(info(success, baseState));
+            }
+            else if (args[0].equals(LIST_BASESTATE_CMD) &&
+                    sender.hasPermission(LIST_BASESTATE_PERM))
+            {
+                String baseStates = "";
+                if (args.length == 1)
+                {
+                    for (String baseStateN : FileRead.readBaseStatesNames())
+                        baseStates += ", " + baseStateN;
+                    if (baseStates.startsWith(", "))
+                        baseStates = baseStates.substring(2);
+                }
+                sender.sendMessage(listBaseState(baseStates));
             }
         }
         else

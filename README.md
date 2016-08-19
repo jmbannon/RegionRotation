@@ -12,3 +12,11 @@ which will eventually be available to everyone to deploy their own custom instan
 
 ## Interested in Contributing?
 Please fork our repository and send a pull request with a meaningful feature/patch/bug-fix. We are always looking for other developers and are willing to help junior developers with the development process.
+
+### User Guide for API
+Terms:
+  BaseState = The main attraction, the region and all its AltStates. 
+  AltState  = The sub regions that the BaseState can change to. 
+  StateController = API which makes all the server BaseStates accessable. 
+To use the StateController use "StateController.instance().methodYouWant()" in a java environment. And that is it.
+Things you can do with StateController: Save BaseStates to disc, get BaseStates for looking only, remove BaseStates, Rotate and Reset BaseStates, and possible more (See source for more methods). 

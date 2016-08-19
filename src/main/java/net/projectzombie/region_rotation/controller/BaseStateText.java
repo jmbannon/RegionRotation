@@ -19,28 +19,30 @@ public class BaseStateText
 
     public static final String
 
-    COMMAND_LIST                = formatForHelp("<add:addalt:remove:reset:rotate>"),
+    COMMAND_LIST                = formatForHelp("<add:addalt:remove:reset:rotate:list>"),
 
     ADD_BASESTATE_CMD           = "add",
     ADD_ALT_BASESTATE_CMD       = "addalt",
     REMOVE_BASESTATE_CMD        = "remove",
     RESET_BASESTATE_CMD         = "reset",
     ROTATE_BASESTATE_CMD        = "rotate",
-    INFO_CMD                    = "info",
+    INFO_BASESTATE_CMD          = "info",
+    LIST_BASESTATE_CMD          = "list",
 
     ADD_BASESTATE_PERM          = "RR.add",
     ADD_ALT_BASESTATE_PERM      = "RR.addalt",
     REMOVE_BASESTATE_PERM       = "RR.remove",
     RESET_BASESTATE_PERM        = "RR.reset",
     ROTATE_BASESTATE_PERM       = "RR.rotate",
-    INFO_PERM                   = "RR.info",
+    INFO_BASESTATE_PERM         = "RR.info",
+    LIST_BASESTATE_PERM         = "RR.list",
 
     ADD_BASESTATE_HELP          = formatForHelp("add <rName> <world> <backup rName> <backup world"),
     ADD_ALT_BASESTATE_HELP      = formatForHelp("addalt <rName> <alt rName> <alt world>"),
     REMOVE_BASESTATE_HELP       = formatForHelp("remove <rName>"),
     RESET_BASESTATE_HELP        = formatForHelp("reset <rName> <broadcast>"),
     ROTATE_BASESTATE_HELP       = formatForHelp("rotate <rName> <alt rName> <rotate air> <broadcast>"),
-    INFO_HELP                   = formatForHelp("info <rName>"),
+    INFO_BASESTATE_HELP         = formatForHelp("info <rName>"),
 
     ADD_BASESTATE_SUCCESS       = "Your BaseState has been set up.",
     ADD_BASESTATE_FAIL          = "Your BaseState could not be created.",
@@ -78,7 +80,10 @@ public class BaseStateText
     { return formatForChat(ROTATE_BASESTATE_SUCCESS, ROTATE_BASESTATE_HELP, success); }
 
     public static String info(final boolean success, final BaseState baseState)
-    { return formatForChat(baseState != null ? baseState.toString() : "", INFO_HELP, success); }
+    { return formatForChat(baseState != null ? baseState.toString() : "", INFO_BASESTATE_HELP, success); }
+
+    public static String listBaseState(final String baseStates)
+    { return formatForChat(baseStates, "", true); }
 
     public static String commandHelp()
     { return COMMAND_LIST; }
