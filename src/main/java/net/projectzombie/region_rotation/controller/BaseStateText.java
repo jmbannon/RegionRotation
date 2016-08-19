@@ -17,7 +17,7 @@ public class BaseStateText
 
     public static final String COMMAND_ROOT = "rr";
 
-    static protected String
+    public static final String
 
     COMMAND_LIST                = formatForHelp("<add:addalt:remove:reset:rotate>"),
 

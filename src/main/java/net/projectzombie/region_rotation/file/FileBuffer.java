@@ -25,7 +25,7 @@ public class FileBuffer
      * @param plugin = JavaPlugin managing the files, a JavaPlugin.
      * @param fileName = Name of file, sould be name.yml
      */
-    public FileBuffer(JavaPlugin plugin, String fileName)
+    public FileBuffer(final JavaPlugin plugin, final String fileName)
     {
         this.plugin = plugin;
         this.fileName = fileName;

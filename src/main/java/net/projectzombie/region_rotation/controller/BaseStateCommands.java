@@ -43,8 +43,6 @@ public class BaseStateCommands implements CommandExecutor
                                                   world.getUID(),
                                                   backupRegionName,
                                                   backupWorld.getUID());
-                        sender.sendMessage(baseState.isValid() + "");
-                        success = StateController.instance().addBaseState(baseState);
                     }
                 }
                 sender.sendMessage(addBaseState(baseState, success));
@@ -87,9 +85,6 @@ public class BaseStateCommands implements CommandExecutor
                     String regionName = args[1];
                     boolean broadcast = Boolean.valueOf(args[2]);
                     success = StateController.instance().resetBaseState(regionName, broadcast);
-                    BaseState baseState = StateController.instance().getBaseState(regionName);
-                    sender.sendMessage(success + ": " + baseState.getCurrentState().getRegionName()
-                                        + ": " + baseState.getBackupBaseStateID());
                 }
                 sender.sendMessage(resetBaseState(success));
             }

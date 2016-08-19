@@ -20,7 +20,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  *
@@ -105,6 +109,7 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
+    /** Used to get a sorted iterator of blocks from the local state. */
     public Iterator<Block> getSortedBlockIterator()
     {
         final LocalWorld regionWorld;
@@ -122,7 +127,7 @@ public abstract class RegionState extends RegionWorld
         {
             return null;
         }
-        arr = new TreeSet<>(new BlockComparator());
+        arr = new TreeSet<Block>(new BlockComparator());
         regionWorld = super.getLocalWorld();
 
         for (BlockVector block : region) {
@@ -137,6 +142,7 @@ public abstract class RegionState extends RegionWorld
         return arr.iterator();
     }
 
+    /** Fetches the chests in the local state. */
     public ArrayList<Chest> getRegionChests()
     {
         final ArrayList<Chest> toRet = new ArrayList<>();
@@ -153,6 +159,7 @@ public abstract class RegionState extends RegionWorld
         return toRet;
     }
 
+    /** Used to check if the rhs can rotate to or from the local state. */
     public boolean canRotate(final RegionState rhs)
     {
         if (rhs == null || !this.isValid || !rhs.isValid)
@@ -183,18 +190,27 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
+    /** Used to copy blocks from the rhs state and paste them in the local state. */
     public boolean copyFrom(final RegionState rhs,
                             final boolean pasteAir)
     {
         return _copyPaste(rhs, this, pasteAir);
     }
 
+    /** Used to copy blocks from the local state and paste them in the rhs state. */
     public boolean pasteTo(final RegionState rhs,
                            final boolean pasteAir)
     {
         return _copyPaste(this, rhs, pasteAir);
     }
 
+    /**
+     * Used to copy and paste a selected region to another selected region that is the same size.
+     * @param copyState The place the blocks are coming from.
+     * @param pasteState The place the blocks are being put in.
+     * @param pasteAir If air is to be CPed into the build.
+     * @return If the CPing was successful.
+     */
     static private boolean _copyPaste(final RegionState copyState,
                                       final RegionState pasteState,
                                       final boolean pasteAir)
@@ -218,8 +234,8 @@ public abstract class RegionState extends RegionWorld
             {
                 continue;
             }
-
-            if (!copyMat.equals(pasteMat))
+            // Data will have to change when MC adds material types for wool.
+            if (!copyMat.equals(pasteMat) || !(copyBlk.getData() == pasteBlk.getData()))
             {
                 pasteBlk.setType(copyMat);
                 pasteBlk.setData(copyBlk.getData());
@@ -228,6 +244,9 @@ public abstract class RegionState extends RegionWorld
         return true;
     }
 
+    /**
+     * Used to create a repeatable order for ordering Blocks.
+     */
     private class BlockComparator implements Comparator<Block>
     {
         @Override

@@ -1,7 +1,5 @@
 package net.projectzombie.region_rotation.modules;
 
-import org.bukkit.Bukkit;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +24,7 @@ public class BaseState extends RegionState
     }
 
     public String getBackupBaseStateID()
-    { return toString(backupBaseState.getRegionName(), backupBaseState.getWorldUID()); }
+    { return toSaveID(backupBaseState.getRegionName(), backupBaseState.getWorldUID()); }
 
     /** Used to store valid AltStates that the BaseState can switch to. */
     private HashMap<String, AltState> altStates;
@@ -36,9 +34,6 @@ public class BaseState extends RegionState
 
     /** Keeps track of the current AltState. */
     private String currentState;
-
-    /** Whether the class was initialized with valid parameters. */
-    //private final boolean isValid;
 
     /**
      * @param regionName WorldGuard region name of BaseState region
@@ -53,11 +48,6 @@ public class BaseState extends RegionState
         this.altStates = new HashMap<>();
         this.backupBaseState = backupBaseState;
         this.currentState = regionName;
-        Bukkit.getPlayer("Gephery").sendMessage(super.isValid() + "");
-        Bukkit.getPlayer("Gephery").sendMessage(this.backupBaseState.isValid() + "");
-        Bukkit.getPlayer("Gephery").sendMessage(this.canRotate(this.backupBaseState) + "");
-        //this.isValid = super.isValid()
-                //&& this.canRotate(this.backupBaseState);
     }
 
     /**
@@ -76,9 +66,6 @@ public class BaseState extends RegionState
     {
         this(regionName, worldUID, new AltState(backupRegionName, backupRegionWorldUID));
     }
-
-    /** {@inheritDoc} */
-    //public boolean isValid() { return this.isValid; }
 
     /**
      * Adds an AltState that can be rotated with BaseState.
@@ -122,7 +109,7 @@ public class BaseState extends RegionState
     {
         List<String> holder = new ArrayList<>();
         for (AltState state : altStates.values())
-            holder.add(toString(state.getRegionName(), state.getWorldUID()));
+            holder.add(toSaveID(state.getRegionName(), state.getWorldUID()));
 
         return holder;
     }
@@ -179,6 +166,12 @@ public class BaseState extends RegionState
         }
     }
 
+    /**
+     * Rotates a BaseState to the specified swapState, and CPs air if rotateAir is true.
+     * @param swapState The state becoming the new current.
+     * @param rotateAir If air is to be CPed over.
+     * @return If the rotation was successful.
+     */
     private boolean _rotateState(final AltState swapState,
                                  final boolean rotateAir)
     {
@@ -190,17 +183,20 @@ public class BaseState extends RegionState
         {
             return true;
         }
-        Bukkit.getPlayer("Gephery").sendMessage("about to copy");
         return this.copyFrom(swapState, rotateAir);
     }
 
+    /**
+     * Used mostly for debug, it prints a nice and easy read of what the BaseState holds.
+     * @return Readable BaseState info.
+     */
     public String toString()
     {
         String altText = ", Alts: ";
         for (AltState alt : altStates.values())
             altText += "- " + alt.getRegionName() + "@" + alt.getWorld().getName();
         if (altText.equals(", Alts: "))
-            altText = "No alts";
+            altText = ", No alts";
         return "Main R: " + getRegionName() + "@" + getWorld().getName() +
                 ", Current: " + getCurrentState().getRegionName() + "@" +
                 getCurrentState().getWorld().getName() +
@@ -208,12 +204,15 @@ public class BaseState extends RegionState
                 altText;
     }
 
-    public static String toString(String regionNameOut, UUID worldUIDOut)
+    /** Used for storing a BaseState or AltState, serves as an ID for it. */
+    public static String toSaveID(String regionNameOut, UUID worldUIDOut)
     { return regionNameOut + "," + worldUIDOut; }
 
+    /** Used to read stuff from disc, should be the toSaveID() result. */
     public static String toRegion(String iD)
     { return iD.split(",").length > 1 ? iD.split(",")[0] : null; }
 
+    /** Used to read stuff from disc, should be the toSaveID() result. */
     public static UUID toWorldUID(String iD)
     { return iD.split(",").length > 1 ? UUID.fromString(iD.split(",")[1]) : null; }
 }
