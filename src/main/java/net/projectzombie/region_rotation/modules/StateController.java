@@ -3,6 +3,7 @@ package net.projectzombie.region_rotation.modules;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.projectzombie.region_rotation.file.FileRead;
 import net.projectzombie.region_rotation.file.FileWrite;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -52,6 +53,9 @@ public class StateController
 
     }
 
+    public final BaseState getBaseState(final String rName)
+    { return states.containsKey(rName) ? states.get(rName) : null; }
+
     /** To be used onDisable() to ensure all BaseStates are there after restart. *
      * @Return If the save was successful.
      */
@@ -65,8 +69,10 @@ public class StateController
      */
     public boolean addBaseState(final BaseState state)
     {
+        Bukkit.getPlayer("Gephery").sendMessage("Is valid?");
         if (state.isValid())
         {
+            Bukkit.getPlayer("Gephery").sendMessage("Got this far?");
             states.put(state.getRegionName(), state);
             return true;
         }
@@ -101,7 +107,8 @@ public class StateController
     public boolean removeBaseStateFully(final String baseStateRegionName)
     {
         BaseState baseState = states.get(baseStateRegionName);
-
+        if (baseState == null)
+            return false;
         // Erase from disc
         boolean successful = FileWrite.flushBaseState(baseState, baseState.getWorld());
 

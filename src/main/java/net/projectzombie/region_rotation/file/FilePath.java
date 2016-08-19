@@ -22,8 +22,7 @@ public class FilePath
     { return BASE_STATE_ROOT + "." + BaseState.toString(regionName, worldUID); }
 
     public static String baseState(BaseState baseState)
-    { return BASE_STATE_ROOT + "." +
-                baseState(baseState.getRegionName(), baseState.getWorldUID()); }
+    { return baseState(baseState.getRegionName(), baseState.getWorldUID()); }
 
     public static String altStates(String regionName, UUID worldUID)
     { return baseState(regionName, worldUID) + ".alts"; }

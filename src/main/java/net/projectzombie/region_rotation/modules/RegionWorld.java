@@ -31,7 +31,7 @@ public abstract class RegionWorld
     }
 
     /** @return Whether the object is valid for use or not. */
-    public boolean       isValid()          { return this.isValid; }
+    public boolean isValid()          { return this.isValid; }
 
 
     public UUID          getWorldUID()      { return this.worldUID; }

@@ -38,7 +38,7 @@ public class BaseState extends RegionState
     private String currentState;
 
     /** Whether the class was initialized with valid parameters. */
-    private final boolean isValid;
+    //private final boolean isValid;
 
     /**
      * @param regionName WorldGuard region name of BaseState region
@@ -53,9 +53,11 @@ public class BaseState extends RegionState
         this.altStates = new HashMap<>();
         this.backupBaseState = backupBaseState;
         this.currentState = regionName;
-        this.isValid = super.isValid()
-                && this.backupBaseState.isValid()
-                && this.canRotate(this.backupBaseState);
+        Bukkit.getPlayer("Gephery").sendMessage(super.isValid() + "");
+        Bukkit.getPlayer("Gephery").sendMessage(this.backupBaseState.isValid() + "");
+        Bukkit.getPlayer("Gephery").sendMessage(this.canRotate(this.backupBaseState) + "");
+        //this.isValid = super.isValid()
+                //&& this.canRotate(this.backupBaseState);
     }
 
     /**
@@ -76,7 +78,7 @@ public class BaseState extends RegionState
     }
 
     /** {@inheritDoc} */
-    @Override public boolean isValid() { return this.isValid; }
+    //public boolean isValid() { return this.isValid; }
 
     /**
      * Adds an AltState that can be rotated with BaseState.
@@ -188,12 +190,23 @@ public class BaseState extends RegionState
         {
             return true;
         }
-
+        Bukkit.getPlayer("Gephery").sendMessage("about to copy");
         return this.copyFrom(swapState, rotateAir);
     }
 
     public String toString()
-    { return getRegionName() + "," + getWorld().getUID(); }
+    {
+        String altText = ", Alts: ";
+        for (AltState alt : altStates.values())
+            altText += "- " + alt.getRegionName() + "@" + alt.getWorld().getName();
+        if (altText.equals(", Alts: "))
+            altText = "No alts";
+        return "Main R: " + getRegionName() + "@" + getWorld().getName() +
+                ", Current: " + getCurrentState().getRegionName() + "@" +
+                getCurrentState().getWorld().getName() +
+                ", Backup: " + backupBaseState.getRegionName() + "@" + getWorld().getName() +
+                altText;
+    }
 
     public static String toString(String regionNameOut, UUID worldUIDOut)
     { return regionNameOut + "," + worldUIDOut; }

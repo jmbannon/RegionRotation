@@ -6,7 +6,6 @@
 package net.projectzombie.region_rotation.modules;
 
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockWorldVector;
 import com.sk89q.worldedit.LocalWorld;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
@@ -44,7 +43,7 @@ public abstract class RegionState extends RegionWorld
     }
 
     /** {@inheritDoc} */
-    @Override public boolean isValid() { return this.isValid; }
+    public boolean isValid() { return this.isValid; }
     public String getRegionName()      { return this.regionName;      }
     public RegionType getRegionType()  { return this.getRegionType(); }
     public String getRotateBroadcastMessage() { return this.rotateBroadcastMessage; }
@@ -110,7 +109,7 @@ public abstract class RegionState extends RegionWorld
     {
         final LocalWorld regionWorld;
         final Region region;
-        final List<Block> arr;
+        final TreeSet<Block> arr;
         if (this.isCuboidRegion())
         {
             region = getCuboidRegion();
@@ -123,7 +122,7 @@ public abstract class RegionState extends RegionWorld
         {
             return null;
         }
-        arr = new ArrayList<>();
+        arr = new TreeSet<>(new BlockComparator());
         regionWorld = super.getLocalWorld();
 
         for (BlockVector block : region) {
@@ -131,8 +130,6 @@ public abstract class RegionState extends RegionWorld
                                                             block.getX(),
                                                             block.getY(),
                                                             block.getZ())).getBlock();
-            //Block blockB = BukkitUtil.toBlock(new BlockWorldVector(regionWorld, block));
-            Bukkit.getPlayer("Gephery").sendMessage(block1 + "");
             arr.add(block1);
 
         }
@@ -195,7 +192,7 @@ public abstract class RegionState extends RegionWorld
     public boolean pasteTo(final RegionState rhs,
                            final boolean pasteAir)
     {
-        return _copyPaste(rhs, this, pasteAir);
+        return _copyPaste(this, rhs, pasteAir);
     }
 
     static private boolean _copyPaste(final RegionState copyState,
@@ -210,7 +207,6 @@ public abstract class RegionState extends RegionWorld
         Iterator<Block> pasteIter = pasteState.getSortedBlockIterator();
         Block copyBlk, pasteBlk;
         Material copyMat, pasteMat;
-
         while (copyIter.hasNext() && pasteIter.hasNext())
         {
             copyBlk = copyIter.next();
@@ -232,6 +228,17 @@ public abstract class RegionState extends RegionWorld
         return true;
     }
 
+    private class BlockComparator implements Comparator<Block>
+    {
+        @Override
+        public int compare(Block b1, Block b2) {
+            if (b1.getX() > b2.getX() || b1.getY() > b2.getY() || b1.getZ() > b2.getZ())
+                return 1;
+            else if (b1.getX() < b2.getX() || b1.getY() < b2.getY() || b1.getZ() < b2.getZ())
+                return -1;
 
+            return 0;
+        }
+    }
 
 }

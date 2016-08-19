@@ -50,7 +50,7 @@ public class FileRead
                 for (String altStateID : altStateIDs)
                     baseState.addAltState(BaseState.toRegion(altStateID), BaseState.toWorldUID(altStateID));
             }
-            //baseState.rotateState(currentState, false); // Don't erase built things.
+            baseState.rotateState(currentState, false); // Don't erase built things.
         }
         return baseState != null ? baseState : null;
     }

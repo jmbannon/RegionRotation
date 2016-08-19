@@ -1,5 +1,6 @@
 package net.projectzombie.region_rotation.controller;
 
+import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.projectzombie.region_rotation.modules.BaseState;
 import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.Bukkit;
@@ -33,12 +34,16 @@ public class BaseStateCommands implements CommandExecutor
                     String backupRegionName = args[3];
                     World backupWorld = Bukkit.getWorld(args[4]);
 
-                    if (world != null && backupWorld != null)
+                    if (world != null && backupWorld != null
+                        && WGBukkit.getRegionManager(world).getRegion(regionName) != null
+                        && WGBukkit.getRegionManager(backupWorld)
+                                    .getRegion(backupRegionName) != null)
                     {
                         baseState = new BaseState(regionName,
                                                   world.getUID(),
                                                   backupRegionName,
                                                   backupWorld.getUID());
+                        sender.sendMessage(baseState.isValid() + "");
                         success = StateController.instance().addBaseState(baseState);
                     }
                 }
@@ -81,9 +86,10 @@ public class BaseStateCommands implements CommandExecutor
                 {
                     String regionName = args[1];
                     boolean broadcast = Boolean.valueOf(args[2]);
-                    success = StateController.instance().resetBaseState(regionName,
-                                                                        broadcast);
-                    sender.sendMessage(success + "");
+                    success = StateController.instance().resetBaseState(regionName, broadcast);
+                    BaseState baseState = StateController.instance().getBaseState(regionName);
+                    sender.sendMessage(success + ": " + baseState.getCurrentState().getRegionName()
+                                        + ": " + baseState.getBackupBaseStateID());
                 }
                 sender.sendMessage(resetBaseState(success));
             }
@@ -105,12 +111,24 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(rotateBaseState(success));
             }
+            else if (args[0].equals(INFO_CMD) &&
+                    sender.hasPermission(INFO_PERM))
+            {
+                boolean success = false;
+                BaseState baseState = null;
+                if (args.length == 2)
+                {
+                    String regionName = args[1];
+                    baseState = StateController.instance().getBaseState(regionName);
+                    success = baseState != null;
+                }
+                sender.sendMessage(info(success, baseState));
+            }
         }
         else
         {
             sender.sendMessage(commandHelp());
         }
-
         return true;
     }
 }
