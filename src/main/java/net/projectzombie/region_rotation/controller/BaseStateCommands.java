@@ -44,6 +44,7 @@ public class BaseStateCommands implements CommandExecutor
                                                   world.getUID(),
                                                   backupRegionName,
                                                   backupWorld.getUID());
+                        success = StateController.instance().addBaseState(baseState);
                     }
                 }
                 sender.sendMessage(addBaseState(baseState, success));

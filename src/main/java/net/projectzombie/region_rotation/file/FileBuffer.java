@@ -65,6 +65,22 @@ public class FileBuffer
         return true; 
     }
 
+    /**
+     * Main way to check if the fileFolder is correct for that world.
+     * To be used when you don't want a fileFolder and just a central file.
+     * **IMPORTANT** To insure right file, use before every write and read. O(1) runtime.
+     * @return If the load was a success.
+     */
+    public boolean safeLoadFileNoFF()
+    {
+        String newFileFolder = "";
+        if (!isFileLoaded() || !isFileFolderSame(newFileFolder))
+        {
+            return discLoadFile(newFileFolder);
+        }
+        return true;
+    }
+
     /** @return If the file is not null. */
     private boolean isFileLoaded()
     { return file != null; }

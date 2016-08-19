@@ -69,10 +69,8 @@ public class StateController
      */
     public boolean addBaseState(final BaseState state)
     {
-        Bukkit.getPlayer("Gephery").sendMessage("Is valid?");
         if (state.isValid())
         {
-            Bukkit.getPlayer("Gephery").sendMessage("Got this far?");
             states.put(state.getRegionName(), state);
             return true;
         }
