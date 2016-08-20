@@ -48,4 +48,12 @@ public class FileBufferController
             fileBuffers.put(fileID, new FileBuffer(PLUGIN, FilePath.fileName()));
         return fileBuffers.get(fileID);
     }
+
+    /** Used for when you want a central file. */
+    public FileBuffer getFile(final String fileName)
+    {
+        if (!fileBuffers.containsKey(fileName))
+            fileBuffers.put(fileName, new FileBuffer(PLUGIN, FilePath.fileName()));
+        return fileBuffers.get(fileName);
+    }
 }

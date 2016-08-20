@@ -19,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -239,6 +240,12 @@ public abstract class RegionState extends RegionWorld
             {
                 pasteBlk.setType(copyMat);
                 pasteBlk.setData(copyBlk.getData());
+                if (copyBlk.getState() instanceof Chest)
+                {
+                    Chest copyChest = (Chest) copyBlk.getState();
+                    Chest pasteChest = (Chest) pasteBlk.getState();
+                    pasteChest.getInventory().setContents(copyChest.getInventory().getContents());
+                }
             }
         }
         return true;
