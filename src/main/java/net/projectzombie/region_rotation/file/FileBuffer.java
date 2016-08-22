@@ -10,14 +10,14 @@ import java.util.UUID;
 
 /**
  * FileBuffers read in a FileConfiguration and store all the necessary workings to write and save
- *  to that file.
+ *  to that file. Directly access file to set and read portions of the Yaml file.
  *  @author Gephery
  */
 public class FileBuffer
 {
     public YamlConfiguration file;
-    private JavaPlugin plugin;
-    private String fileName;
+    private final JavaPlugin plugin;
+    private final String fileName;
     private String fileFolder;
 
     /**
@@ -30,6 +30,7 @@ public class FileBuffer
         this.plugin = plugin;
         this.fileName = fileName;
         this.file = null;
+        this.fileFolder = "";
 
     }
 
@@ -44,7 +45,7 @@ public class FileBuffer
      * @param world The world the file belongs to.
      * @return If the load was a success. 
      */
-    public boolean safeLoadFile(World world)
+    public boolean safeLoadFile(final World world)
     {
         return safeLoadFile(world.getUID()); 
     }
@@ -55,7 +56,7 @@ public class FileBuffer
      * @param worldUID The UUID of the world the file belongs to.
      * @return If the load was a success. 
      */
-    public boolean safeLoadFile(UUID worldUID)
+    public boolean safeLoadFile(final UUID worldUID)
     {
         String newFileFolder = formatFileFolder(worldUID);
         if (!isFileLoaded() || !isFileFolderSame(newFileFolder))
@@ -86,11 +87,11 @@ public class FileBuffer
     { return file != null; }
 
     /** @return If the file folder is same as one in field. */
-    private boolean isFileFolderSame(String cFileFolder)
+    private boolean isFileFolderSame(final String cFileFolder)
     { return fileFolder.equals(cFileFolder); }
 
     /** Used to update the referenced file from disc, will create if there is none. */
-    private boolean discLoadFile(String cFileFolder)
+    private boolean discLoadFile(final String cFileFolder)
     {
         fileFolder = cFileFolder;
         file = YamlConfiguration.loadConfiguration(
@@ -127,8 +128,17 @@ public class FileBuffer
     private String formatFileFolder(UUID worldUID)
     { return "/" + worldUID + "/"; }
 
-    /** Way to make sure the file you want is the same as the one had. */
+    /**
+     * FileIDs for non central files are combined with their world.
+     * @param fileName Name of file, should be something like blank.yml.
+     */
     public static String buildID(World world, String fileName)
     { return "/" + world.getUID() + "/" + fileName; }
 
+    /**
+     * FileIDs for central files.
+     * @param fileName Name of file, should be something like blank.yml.
+     */
+    public static String buildID(String fileName)
+    { return fileName; }
 }

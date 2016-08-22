@@ -14,6 +14,9 @@ import java.util.List;
  */
 public class FileWrite
 {
+
+    private FileWrite() { /* Does nothing. */ }
+
     /**
      * Writes all the necessary info to fetch the BaseState in the future from disc.
      * @param baseState The BaseState being saved to disc.
@@ -22,7 +25,8 @@ public class FileWrite
      */
     public static boolean writeBaseState(final BaseState baseState, final World world)
     {
-        FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
+        FileBuffer fileBuffer = FileBufferController.instance().getFile(world,
+                                                                        FilePath.fileName());
         fileBuffer.safeLoadFile(world);
 
         // Changing altstates into alstatesID
@@ -67,7 +71,8 @@ public class FileWrite
      */
     public static boolean flushBaseState(final BaseState baseState, final World world)
     {
-        FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
+        FileBuffer fileBuffer = FileBufferController.instance().getFile(world,
+                                                                        FilePath.fileName());
         fileBuffer.safeLoadFile(world);
 
         fileBuffer.file.set(FilePath.baseState(baseState), null);

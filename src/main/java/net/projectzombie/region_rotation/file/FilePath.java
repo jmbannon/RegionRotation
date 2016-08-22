@@ -10,6 +10,9 @@ import java.util.UUID;
  */
 public class FilePath
 {
+
+    private FilePath() { /* Does nothing. */ }
+
     public static String fileName = "region_rotation.yml";
     private static final String BASE_STATE_ROOT = "region";
 

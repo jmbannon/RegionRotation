@@ -10,6 +10,9 @@ import org.bukkit.ChatColor;
  */
 public class BaseStateText
 {
+
+    private BaseStateText() { /* Does nothing. */ }
+
     private static final PluginChat chat = new PluginChat("Region Rotation", ChatColor.GREEN,
                                                           ChatColor.WHITE, ChatColor.BOLD,
                                                           ChatColor.ITALIC);

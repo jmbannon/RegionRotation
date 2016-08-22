@@ -6,7 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 
 /**
- * Used keep track of the FileBuffers and fetch them.
+ * Used keep track of the FileBuffers and fetch them, by their ID. To get ID use FileBuffer's
+ *  static method. FileBuffers are what is used to read/write things to disc.
  * @author Gephery
  */
 public class FileBufferController
@@ -40,20 +41,30 @@ public class FileBufferController
         this.fileBuffers = new HashMap<>();
     }
 
-    /** @return FileBuffer for that world. */
-    public FileBuffer getFile(final World world)
+    /**
+     * Used to get a non central FileBuffer.
+     * @param world The world associated with the FileBuffer being get.
+     * @param fileName Name of file, should be something like blank.yml.
+     * @return FileBuffer being fetched.
+     */
+    public FileBuffer getFile(final World world, final String fileName)
     {
-        String fileID = FileBuffer.buildID(world, FilePath.fileName());
+        String fileID = FileBuffer.buildID(world, fileName);
         if (!fileBuffers.containsKey(fileID))
-            fileBuffers.put(fileID, new FileBuffer(PLUGIN, FilePath.fileName()));
+            fileBuffers.put(fileID, new FileBuffer(PLUGIN, fileName));
         return fileBuffers.get(fileID);
     }
 
-    /** Used for when you want a central file. */
+    /**
+     * Used for when you want a central file.
+     * @param fileName of file should be something like blank.yml.
+     * @return FileBuffer being fetched.
+     */
     public FileBuffer getFile(final String fileName)
     {
-        if (!fileBuffers.containsKey(fileName))
-            fileBuffers.put(fileName, new FileBuffer(PLUGIN, FilePath.fileName()));
-        return fileBuffers.get(fileName);
+        String fileID = FileBuffer.buildID(fileName);
+        if (!fileBuffers.containsKey(fileID))
+            fileBuffers.put(fileID, new FileBuffer(PLUGIN, FilePath.fileName()));
+        return fileBuffers.get(fileID);
     }
 }

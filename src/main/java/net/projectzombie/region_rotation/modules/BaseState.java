@@ -192,16 +192,45 @@ public class BaseState extends RegionState
      */
     public String toString()
     {
-        String altText = ", Alts: ";
-        for (AltState alt : altStates.values())
-            altText += "- " + alt.getRegionName() + "@" + alt.getWorld().getName();
-        if (altText.equals(", Alts: "))
-            altText = ", No alts";
-        return "Main R: " + getRegionName() + "@" + getWorld().getName() +
-                ", Current: " + getCurrentState().getRegionName() + "@" +
-                getCurrentState().getWorld().getName() +
-                ", Backup: " + backupBaseState.getRegionName() + "@" + getWorld().getName() +
-                altText;
+        final String rAndWSeparator = "@";
+
+        StringBuilder builder = new StringBuilder();
+
+        // Main Region adding
+        builder.append("Main R: ");
+        builder.append(getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(getWorld().getName());
+
+        // Current region adding
+        builder.append(", Current: ");
+        builder.append(getCurrentState().getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(getCurrentState().getWorld().getName());
+
+        // Backup state adding.
+        builder.append(", Backup: ");
+        builder.append(backupBaseState.getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(backupBaseState.getWorld().getName());
+
+        // Alts states being added.
+        if (altStates.isEmpty())
+            builder.append(", No alts.");
+        else
+        {
+            builder.append(", Alts: ");
+            for (AltState alt : altStates.values())
+            {
+                builder.append("-"); // Starter
+                builder.append(alt.getRegionName());
+                builder.append(rAndWSeparator);
+                builder.append(alt.getWorld().getName());
+                builder.append(" "); // Spacing the alts
+            }
+        }
+
+        return builder.toString();
     }
 
     /** Used for storing a BaseState or AltState, serves as an ID for it. */

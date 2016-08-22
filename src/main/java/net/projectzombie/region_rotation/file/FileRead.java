@@ -15,6 +15,9 @@ import java.util.UUID;
  */
 public class FileRead
 {
+
+    private FileRead() { /* Does nothing. */ }
+
     /**
      * Reads in a specific BaseState.
      * @param regionName The region the BaseState belongs to.
@@ -23,16 +26,19 @@ public class FileRead
      */
     public static BaseState readBaseState(String regionName, World world)
     {
-        FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
+        FileBuffer fileBuffer = FileBufferController.instance().getFile(world,
+                                                                        FilePath.fileName());
         fileBuffer.safeLoadFile(world);
         UUID worldUID = world.getUID();
         BaseState baseState = null;
+
         String pathToBaseState = FilePath.baseState(regionName, worldUID);
         String pathToBackupS = FilePath.backupState(regionName, worldUID);
         String pathToCurrentS = FilePath.currentState(regionName, worldUID);
         String pathToAltState = FilePath.altStates(regionName, worldUID);
+
         if (fileBuffer.isSafePath(pathToBaseState))
-            {
+        {
             List<String> altStateIDs = fileBuffer.file.getStringList(pathToAltState);
 
             String backupBaseStateID = fileBuffer.file.getString(pathToBackupS);
@@ -48,7 +54,8 @@ public class FileRead
             if (altStateIDs != null)
             {
                 for (String altStateID : altStateIDs)
-                    baseState.addAltState(BaseState.toRegion(altStateID), BaseState.toWorldUID(altStateID));
+                    baseState.addAltState(BaseState.toRegion(altStateID),
+                                          BaseState.toWorldUID(altStateID));
             }
             baseState.rotateState(currentState, false); // Don't erase built things.
         }
@@ -69,7 +76,8 @@ public class FileRead
 
     public static Set<String> readBaseStateNames(World world)
     {
-        FileBuffer fileBuffer = FileBufferController.instance().getFile(world);
+        FileBuffer fileBuffer = FileBufferController.instance().getFile(world,
+                                                                        FilePath.fileName());
         fileBuffer.safeLoadFile(world);
         String pathToBaseStates = FilePath.baseStates();
         return  fileBuffer.isSafePath(pathToBaseStates) ?
@@ -86,7 +94,7 @@ public class FileRead
     {
         FileBuffer fileBuffer = FileBufferController
                                 .instance()
-                                .getFile(world);
+                                .getFile(world, FilePath.fileName());
         fileBuffer.safeLoadFile(world);
         Set<BaseState> baseStates = new HashSet<>();
         Set<String> baseStateNames = readBaseStateNames(world);

@@ -19,7 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.Sign;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,7 +48,7 @@ public abstract class RegionState extends RegionWorld
     }
 
     /** {@inheritDoc} */
-    public boolean isValid() { return this.isValid; }
+    @Override public boolean isValid() { return this.getProtectedRegion() != null && this.isValid; }
     public String getRegionName()      { return this.regionName;      }
     public RegionType getRegionType()  { return this.getRegionType(); }
     public String getRotateBroadcastMessage() { return this.rotateBroadcastMessage; }
@@ -236,7 +236,8 @@ public abstract class RegionState extends RegionWorld
                 continue;
             }
             // Data will have to change when MC adds material types for wool.
-            if (!copyMat.equals(pasteMat) || !(copyBlk.getData() == pasteBlk.getData()))
+            if (!copyMat.equals(pasteMat) || !(copyBlk.getData() == pasteBlk.getData())
+                || copyBlk.getState() instanceof Chest || copyBlk.getState() instanceof Sign)
             {
                 pasteBlk.setType(copyMat);
                 pasteBlk.setData(copyBlk.getData());
@@ -245,6 +246,17 @@ public abstract class RegionState extends RegionWorld
                     Chest copyChest = (Chest) copyBlk.getState();
                     Chest pasteChest = (Chest) pasteBlk.getState();
                     pasteChest.getInventory().setContents(copyChest.getInventory().getContents());
+                }
+                else if (copyBlk.getState() instanceof Sign)
+                {
+                    Sign copySign = (Sign) copyBlk.getState();
+                    Sign pasteSign = (Sign) pasteBlk.getState();
+
+                    for (int i = 0; i < copySign.getLines().length; i++)
+                    {
+                        pasteSign.setLine(i, copySign.getLine(i));
+                    }
+                    pasteSign.update();
                 }
             }
         }
@@ -258,10 +270,12 @@ public abstract class RegionState extends RegionWorld
     {
         @Override
         public int compare(Block b1, Block b2) {
-            if (b1.getX() > b2.getX() || b1.getY() > b2.getY() || b1.getZ() > b2.getZ())
-                return 1;
-            else if (b1.getX() < b2.getX() || b1.getY() < b2.getY() || b1.getZ() < b2.getZ())
-                return -1;
+            if (b1.getX() != b2.getX())
+                return b1.getX() > b2.getX() ? 1 : -1;
+            else if (b1.getY() != b2.getY())
+                return b1.getY() > b2.getY() ? 1 : -1;
+            else if (b1.getZ() != b2.getZ())
+                return b1.getZ() > b2.getZ() ? 1 : -1;
 
             return 0;
         }

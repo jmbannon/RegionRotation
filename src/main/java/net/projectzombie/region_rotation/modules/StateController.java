@@ -3,7 +3,6 @@ package net.projectzombie.region_rotation.modules;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.projectzombie.region_rotation.file.FileRead;
 import net.projectzombie.region_rotation.file.FileWrite;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -46,11 +45,13 @@ public class StateController
         WG_PLUGIN = WGBukkit.getPlugin();
         states = new HashMap<>();
 
+        // Adding baseStates from disc.
         Set<BaseState> baseStates = FileRead.readBaseStates();
         if (baseStates != null)
+        {
             for (BaseState baseState : FileRead.readBaseStates())
                 states.put(baseState.getRegionName(), baseState);
-
+        }
     }
 
     public final BaseState getBaseState(final String rName)

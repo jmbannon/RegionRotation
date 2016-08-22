@@ -23,7 +23,7 @@ public class BaseStateCommands implements CommandExecutor
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0)
         {
-            if (args[0].equals(ADD_BASESTATE_CMD) && sender.hasPermission(ADD_BASESTATE_PERM))
+            if (args[0].equalsIgnoreCase(ADD_BASESTATE_CMD) && sender.hasPermission(ADD_BASESTATE_PERM))
             {
                 boolean success = false;
                 BaseState baseState = null;
@@ -35,21 +35,19 @@ public class BaseStateCommands implements CommandExecutor
                     String backupRegionName = args[3];
                     World backupWorld = Bukkit.getWorld(args[4]);
 
-                    if (world != null && backupWorld != null
-                        && WGBukkit.getRegionManager(world).getRegion(regionName) != null
-                        && WGBukkit.getRegionManager(backupWorld)
-                                    .getRegion(backupRegionName) != null)
+                    if (world != null && backupWorld != null)
                     {
                         baseState = new BaseState(regionName,
                                                   world.getUID(),
                                                   backupRegionName,
                                                   backupWorld.getUID());
-                        success = StateController.instance().addBaseState(baseState);
+                        if (baseState.isValid())
+                            success = StateController.instance().addBaseState(baseState);
                     }
                 }
                 sender.sendMessage(addBaseState(baseState, success));
             }
-            else if (args[0].equals(ADD_ALT_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(ADD_ALT_BASESTATE_CMD) &&
                     sender.hasPermission(ADD_ALT_BASESTATE_PERM))
             {
                 boolean success = false;
@@ -67,7 +65,7 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(addAltState(success));
             }
-            else if (args[0].equals(REMOVE_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(REMOVE_BASESTATE_CMD) &&
                      sender.hasPermission(REMOVE_BASESTATE_PERM))
             {
                 boolean success = false;
@@ -78,7 +76,7 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(removeBaseState(success));
             }
-            else if (args[0].equals(RESET_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(RESET_BASESTATE_CMD) &&
                     sender.hasPermission(RESET_BASESTATE_PERM))
             {
                 boolean success = false;
@@ -90,7 +88,7 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(resetBaseState(success));
             }
-            else if (args[0].equals(ROTATE_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(ROTATE_BASESTATE_CMD) &&
                     sender.hasPermission(ROTATE_BASESTATE_PERM))
             {
                 boolean success = false;
@@ -108,7 +106,7 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(rotateBaseState(success));
             }
-            else if (args[0].equals(INFO_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(INFO_BASESTATE_CMD) &&
                     sender.hasPermission(INFO_BASESTATE_PERM))
             {
                 boolean success = false;
@@ -121,7 +119,7 @@ public class BaseStateCommands implements CommandExecutor
                 }
                 sender.sendMessage(info(success, baseState));
             }
-            else if (args[0].equals(LIST_BASESTATE_CMD) &&
+            else if (args[0].equalsIgnoreCase(LIST_BASESTATE_CMD) &&
                     sender.hasPermission(LIST_BASESTATE_PERM))
             {
                 String baseStates = "";
