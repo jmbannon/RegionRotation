@@ -1,6 +1,9 @@
 package net.projectzombie.region_rotation.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by jmbannon on 8/9/16.
@@ -14,11 +17,14 @@ public class BaseState extends RegionState
     static private class AltState extends RegionState
     {
         public AltState(final String regionName,
-                        final String worldName)
+                        final UUID worldUID)
         {
-            super(regionName, worldName);
+            super(regionName, worldUID);
         }
     }
+
+    public String getBackupBaseStateID()
+    { return toSaveID(backupBaseState.getRegionName(), backupBaseState.getWorldUID()); }
 
     /** Used to store valid AltStates that the BaseState can switch to. */
     private HashMap<String, AltState> altStates;
@@ -29,25 +35,19 @@ public class BaseState extends RegionState
     /** Keeps track of the current AltState. */
     private String currentState;
 
-    /** Whether the class was initialized with valid parameters. */
-    private final boolean isValid;
-
     /**
      * @param regionName WorldGuard region name of BaseState region
-     * @param worldName World name that region is located in.
+     * @param worldUID World UUID that region is located in.
      * @param backupBaseState Backup State for BaseState.
      */
     private BaseState(final String regionName,
-                     final String worldName,
+                     final UUID worldUID,
                      final AltState backupBaseState)
     {
-        super(regionName, worldName);
+        super(regionName, worldUID);
         this.altStates = new HashMap<>();
         this.backupBaseState = backupBaseState;
         this.currentState = regionName;
-        this.isValid = this.isValid()
-                && this.backupBaseState.isValid()
-                && this.canRotate(this.backupBaseState);
     }
 
     /**
@@ -55,31 +55,28 @@ public class BaseState extends RegionState
      * before use.
      *
      * @param regionName WorldGuard region name of BaseState region
-     * @param worldName World name that region is located in.
+     * @param worldUID World UUID that region is located in.
      * @param backupRegionName WorldGuard region name of BaseState's backup-region.
-     * @param backupRegionWorldName World name that backup-region is located in.
+     * @param backupRegionWorldUID World UUID that backup-region is located in.
      */
     public BaseState(final String regionName,
-                     final String worldName,
+                     final UUID worldUID,
                      final String backupRegionName,
-                     final String backupRegionWorldName)
+                     final UUID backupRegionWorldUID)
     {
-        this(regionName, worldName, new AltState(backupRegionName, backupRegionWorldName));
+        this(regionName, worldUID, new AltState(backupRegionName, backupRegionWorldUID));
     }
-
-    /** {@inheritDoc} */
-    @Override public boolean isValid() { return this.isValid; }
 
     /**
      * Adds an AltState that can be rotated with BaseState.
      * @param altRegionName WorldGuard region name of the AltState.
-     * @param altRegionWorldName World name of the AltState region.
+     * @param altRegionWorldUID World UUID of the AltState region.
      * @return True if the AltState was valid and added successfully. False otherwise.
      */
     public boolean addAltState(final String altRegionName,
-                               final String altRegionWorldName)
+                               final UUID altRegionWorldUID)
     {
-        final AltState altState = new AltState(altRegionName, altRegionWorldName);
+        final AltState altState = new AltState(altRegionName, altRegionWorldUID);
         if (this.canRotate(altState))
         {
             altStates.put(altRegionName, altState);
@@ -106,6 +103,15 @@ public class BaseState extends RegionState
     public boolean containsAltState(final String altRegionName)
     {
         return altStates.containsKey(altRegionName) && altStates.get(altRegionName).isValid();
+    }
+
+    public List<String> getAltStateIDs()
+    {
+        List<String> holder = new ArrayList<>();
+        for (AltState state : altStates.values())
+            holder.add(toSaveID(state.getRegionName(), state.getWorldUID()));
+
+        return holder;
     }
 
     /**
@@ -160,6 +166,12 @@ public class BaseState extends RegionState
         }
     }
 
+    /**
+     * Rotates a BaseState to the specified swapState, and CPs air if rotateAir is true.
+     * @param swapState The state becoming the new current.
+     * @param rotateAir If air is to be CPed over.
+     * @return If the rotation was successful.
+     */
     private boolean _rotateState(final AltState swapState,
                                  final boolean rotateAir)
     {
@@ -171,7 +183,65 @@ public class BaseState extends RegionState
         {
             return true;
         }
-
         return this.copyFrom(swapState, rotateAir);
     }
+
+    /**
+     * Used mostly for debug, it prints a nice and easy read of what the BaseState holds.
+     * @return Readable BaseState info.
+     */
+    public String toString()
+    {
+        final String rAndWSeparator = "@";
+
+        StringBuilder builder = new StringBuilder();
+
+        // Main Region adding
+        builder.append("Main R: ");
+        builder.append(getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(getWorld().getName());
+
+        // Current region adding
+        builder.append(", Current: ");
+        builder.append(getCurrentState().getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(getCurrentState().getWorld().getName());
+
+        // Backup state adding.
+        builder.append(", Backup: ");
+        builder.append(backupBaseState.getRegionName());
+        builder.append(rAndWSeparator);
+        builder.append(backupBaseState.getWorld().getName());
+
+        // Alts states being added.
+        if (altStates.isEmpty())
+            builder.append(", No alts.");
+        else
+        {
+            builder.append(", Alts: ");
+            for (AltState alt : altStates.values())
+            {
+                builder.append("-"); // Starter
+                builder.append(alt.getRegionName());
+                builder.append(rAndWSeparator);
+                builder.append(alt.getWorld().getName());
+                builder.append(" "); // Spacing the alts
+            }
+        }
+
+        return builder.toString();
+    }
+
+    /** Used for storing a BaseState or AltState, serves as an ID for it. */
+    public static String toSaveID(String regionNameOut, UUID worldUIDOut)
+    { return regionNameOut + "," + worldUIDOut; }
+
+    /** Used to read stuff from disc, should be the toSaveID() result. */
+    public static String toRegion(String iD)
+    { return iD.split(",").length > 1 ? iD.split(",")[0] : null; }
+
+    /** Used to read stuff from disc, should be the toSaveID() result. */
+    public static UUID toWorldUID(String iD)
+    { return iD.split(",").length > 1 ? UUID.fromString(iD.split(",")[1]) : null; }
 }

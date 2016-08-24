@@ -6,7 +6,6 @@
 package net.projectzombie.region_rotation.modules;
 
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockWorldVector;
 import com.sk89q.worldedit.LocalWorld;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
@@ -16,13 +15,17 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Sign;
 
-import java.util.TreeSet;
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  *
@@ -36,16 +39,16 @@ public abstract class RegionState extends RegionWorld
     private String rotateBroadcastMessage = null;
 
     public RegionState(final String regionName,
-                       final String worldName)
+                       final UUID worldUID)
     {
-        super(worldName);
+        super(worldUID);
         this.regionName = regionName;
         this.regionType = this.getProtectedRegion().getType();
         this.isValid = super.isValid() && this.regionName != null && this.getProtectedRegion() != null;
     }
 
     /** {@inheritDoc} */
-    @Override public boolean isValid() { return this.isValid; }
+    @Override public boolean isValid() { return this.getProtectedRegion() != null && this.isValid; }
     public String getRegionName()      { return this.regionName;      }
     public RegionType getRegionType()  { return this.getRegionType(); }
     public String getRotateBroadcastMessage() { return this.rotateBroadcastMessage; }
@@ -107,6 +110,7 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
+    /** Used to get a sorted iterator of blocks from the local state. */
     public Iterator<Block> getSortedBlockIterator()
     {
         final LocalWorld regionWorld;
@@ -124,16 +128,22 @@ public abstract class RegionState extends RegionWorld
         {
             return null;
         }
-        arr = new TreeSet<>();
+        arr = new TreeSet<Block>(new BlockComparator());
         regionWorld = super.getLocalWorld();
 
         for (BlockVector block : region) {
-            arr.add(BukkitUtil.toBlock(new BlockWorldVector(regionWorld, block)));
+            Block block1 = (new Location(BukkitUtil.toWorld(regionWorld),
+                                                            block.getX(),
+                                                            block.getY(),
+                                                            block.getZ())).getBlock();
+            arr.add(block1);
+
         }
 
         return arr.iterator();
     }
 
+    /** Fetches the chests in the local state. */
     public ArrayList<Chest> getRegionChests()
     {
         final ArrayList<Chest> toRet = new ArrayList<>();
@@ -150,6 +160,7 @@ public abstract class RegionState extends RegionWorld
         return toRet;
     }
 
+    /** Used to check if the rhs can rotate to or from the local state. */
     public boolean canRotate(final RegionState rhs)
     {
         if (rhs == null || !this.isValid || !rhs.isValid)
@@ -160,7 +171,7 @@ public abstract class RegionState extends RegionWorld
         if (this.isCuboidRegion() && rhs.isCuboidRegion())
         {
             CuboidRegion lhsR = this.getCuboidRegion();
-            CuboidRegion rhsR = this.getCuboidRegion();
+            CuboidRegion rhsR = rhs.getCuboidRegion();
             return lhsR.getLength() == rhsR.getLength()
                     && lhsR.getWidth() == rhsR.getWidth()
                     && lhsR.getHeight() == rhsR.getHeight();
@@ -168,7 +179,7 @@ public abstract class RegionState extends RegionWorld
         else if (this.isPolygonRegion() && rhs.isPolygonRegion())
         {
             Polygonal2DRegion lhsR = this.getPolygonRegion();
-            Polygonal2DRegion rhsR = this.getPolygonRegion();
+            Polygonal2DRegion rhsR = rhs.getPolygonRegion();
             return lhsR.getLength() == rhsR.getLength()
                     && lhsR.getWidth() == rhsR.getWidth()
                     && lhsR.getHeight() == rhsR.getHeight()
@@ -180,23 +191,32 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
+    /** Used to copy blocks from the rhs state and paste them in the local state. */
     public boolean copyFrom(final RegionState rhs,
                             final boolean pasteAir)
-    {
-        return _copyPaste(this, rhs, pasteAir);
-    }
-
-    public boolean pasteTo(final RegionState rhs,
-                           final boolean pasteAir)
     {
         return _copyPaste(rhs, this, pasteAir);
     }
 
+    /** Used to copy blocks from the local state and paste them in the rhs state. */
+    public boolean pasteTo(final RegionState rhs,
+                           final boolean pasteAir)
+    {
+        return _copyPaste(this, rhs, pasteAir);
+    }
+
+    /**
+     * Used to copy and paste a selected region to another selected region that is the same size.
+     * @param copyState The place the blocks are coming from.
+     * @param pasteState The place the blocks are being put in.
+     * @param pasteAir If air is to be CPed into the build.
+     * @return If the CPing was successful.
+     */
     static private boolean _copyPaste(final RegionState copyState,
                                       final RegionState pasteState,
                                       final boolean pasteAir)
     {
-        if (!copyState.canRotate(pasteState)) {
+        if (copyState == null || !copyState.canRotate(pasteState)) {
             return false;
         }
 
@@ -204,28 +224,61 @@ public abstract class RegionState extends RegionWorld
         Iterator<Block> pasteIter = pasteState.getSortedBlockIterator();
         Block copyBlk, pasteBlk;
         Material copyMat, pasteMat;
-
         while (copyIter.hasNext() && pasteIter.hasNext())
         {
             copyBlk = copyIter.next();
             copyMat = copyBlk.getType();
-            pasteBlk = copyIter.next();
+            pasteBlk = pasteIter.next();
             pasteMat = pasteBlk.getType();
 
             if (!pasteAir && pasteMat.equals(Material.AIR))
             {
                 continue;
             }
-
-            if (!copyMat.equals(pasteMat))
+            // Data will have to change when MC adds material types for wool.
+            if (!copyMat.equals(pasteMat) || !(copyBlk.getData() == pasteBlk.getData())
+                || copyBlk.getState() instanceof Chest || copyBlk.getState() instanceof Sign)
             {
                 pasteBlk.setType(copyMat);
                 pasteBlk.setData(copyBlk.getData());
+                if (copyBlk.getState() instanceof Chest)
+                {
+                    Chest copyChest = (Chest) copyBlk.getState();
+                    Chest pasteChest = (Chest) pasteBlk.getState();
+                    pasteChest.getInventory().setContents(copyChest.getInventory().getContents());
+                }
+                else if (copyBlk.getState() instanceof Sign)
+                {
+                    Sign copySign = (Sign) copyBlk.getState();
+                    Sign pasteSign = (Sign) pasteBlk.getState();
+
+                    for (int i = 0; i < copySign.getLines().length; i++)
+                    {
+                        pasteSign.setLine(i, copySign.getLine(i));
+                    }
+                    pasteSign.update();
+                }
             }
         }
         return true;
     }
 
+    /**
+     * Used to create a repeatable order for ordering Blocks.
+     */
+    private class BlockComparator implements Comparator<Block>
+    {
+        @Override
+        public int compare(Block b1, Block b2) {
+            if (b1.getX() != b2.getX())
+                return b1.getX() > b2.getX() ? 1 : -1;
+            else if (b1.getY() != b2.getY())
+                return b1.getY() > b2.getY() ? 1 : -1;
+            else if (b1.getZ() != b2.getZ())
+                return b1.getZ() > b2.getZ() ? 1 : -1;
 
+            return 0;
+        }
+    }
 
 }

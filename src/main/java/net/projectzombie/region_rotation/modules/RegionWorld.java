@@ -11,6 +11,8 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.util.UUID;
+
 /**
  * Parent class for modules to store their world and respective WorldGuard
  * region manager.
@@ -19,21 +21,21 @@ import org.bukkit.World;
  */
 public abstract class RegionWorld
 {
-    private final String worldName;
+    private final UUID worldUID;
     private final boolean isValid;
     
-    public RegionWorld(final String worldName)
+    public RegionWorld(final UUID worldUID)
     {
-        this.worldName = worldName;
+        this.worldUID = worldUID;
         this.isValid = this.getWorld() != null && getRegionManager() != null;
     }
 
     /** @return Whether the object is valid for use or not. */
-    public boolean       isValid()          { return this.isValid; }
+    public boolean isValid()          { return this.isValid; }
 
 
-    public String        getWorldName()     { return this.worldName; }
-    public World         getWorld()         { return Bukkit.getWorld(worldName); }
+    public UUID          getWorldUID()      { return this.worldUID; }
+    public World         getWorld()         { return Bukkit.getWorld(worldUID); }
     public LocalWorld    getLocalWorld()    { return com.sk89q.worldedit.bukkit.BukkitUtil.getLocalWorld(this.getWorld()); }
     public RegionManager getRegionManager() { return WGBukkit.getRegionManager(getWorld()); }
 

@@ -3,6 +3,6 @@ main: net.projectzombie.region_rotation.main.Main
 version: 1.0
 depend: [WorldEdit,WorldGuard]
 commands:
-  nope:
-    description: Memory used storing blocks.
-    usage: "Usage: /bw lore"
+  rr:
+    description: Full suite of Region Rotation cmds.
+    usage: "/rr <add:addalt:remove:reset:rotate"
