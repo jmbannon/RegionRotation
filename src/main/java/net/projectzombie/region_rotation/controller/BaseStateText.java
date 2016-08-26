@@ -1,7 +1,6 @@
 package net.projectzombie.region_rotation.controller;
 
 import net.projectzombie.consistentchatapi.PluginChat;
-import net.projectzombie.region_rotation.modules.BaseState;
 import org.bukkit.ChatColor;
 
 /**
@@ -67,7 +66,7 @@ public class BaseStateText
     public static String formatForHelp(final String txt)
     { return "/" + COMMAND_ROOT + " " + txt; }
 
-    public static String addBaseState(final BaseState baseState, final boolean success)
+    public static String addBaseState(final String baseState, final boolean success)
     { return formatForChat(ADD_BASESTATE_SUCCESS, ADD_BASESTATE_HELP, success); }
 
     public static String addAltState(final boolean success)
@@ -82,8 +81,8 @@ public class BaseStateText
     public static String rotateBaseState(final boolean success)
     { return formatForChat(ROTATE_BASESTATE_SUCCESS, ROTATE_BASESTATE_HELP, success); }
 
-    public static String info(final boolean success, final BaseState baseState)
-    { return formatForChat(baseState != null ? baseState.toString() : "", INFO_BASESTATE_HELP, success); }
+    public static String info(final boolean success, final String baseState)
+    { return formatForChat(baseState != null ? baseState : "", INFO_BASESTATE_HELP, success); }
 
     public static String listBaseState(final String baseStates)
     { return formatForChat(baseStates, "", true); }
