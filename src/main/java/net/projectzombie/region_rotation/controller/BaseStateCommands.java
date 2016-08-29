@@ -1,14 +1,13 @@
 package net.projectzombie.region_rotation.controller;
 
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import net.projectzombie.region_rotation.file.FileRead;
-import net.projectzombie.region_rotation.modules.BaseState;
 import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import java.util.Set;
 
 import static net.projectzombie.region_rotation.controller.BaseStateText.*;
 
@@ -25,27 +24,20 @@ public class BaseStateCommands implements CommandExecutor
         {
             if (args[0].equalsIgnoreCase(ADD_BASESTATE_CMD) && sender.hasPermission(ADD_BASESTATE_PERM))
             {
+                String regionName = null;
                 boolean success = false;
-                BaseState baseState = null;
                 if (args.length == 5)
                 {
                     // Convert all the inputs
-                    String regionName = args[1];
+                    regionName = args[1];
                     World world = Bukkit.getWorld(args[2]);
                     String backupRegionName = args[3];
                     World backupWorld = Bukkit.getWorld(args[4]);
 
-                    if (world != null && backupWorld != null)
-                    {
-                        baseState = new BaseState(regionName,
-                                                  world.getUID(),
-                                                  backupRegionName,
-                                                  backupWorld.getUID());
-                        if (baseState.isValid())
-                            success = StateController.instance().addBaseState(baseState);
-                    }
+                    success = StateController.instance().addBaseState(regionName, world, backupRegionName, backupWorld);
                 }
-                sender.sendMessage(addBaseState(baseState, success));
+                // TODO fix
+                sender.sendMessage(addBaseState(regionName, success));
             }
             else if (args[0].equalsIgnoreCase(ADD_ALT_BASESTATE_CMD) &&
                     sender.hasPermission(ADD_ALT_BASESTATE_PERM))
@@ -56,12 +48,10 @@ public class BaseStateCommands implements CommandExecutor
                     String regionName = args[1];
                     String altRegionName = args[2];
                     World altRegionWorld = Bukkit.getWorld(args[3]);
-                    if (altRegionWorld != null)
-                    {
-                        success = StateController.instance().addAltState(regionName,
-                                altRegionName,
-                                altRegionWorld.getUID());
-                    }
+
+                    success = StateController.instance().addAltState(regionName,
+                            altRegionName,
+                            altRegionWorld);
                 }
                 sender.sendMessage(addAltState(success));
             }
@@ -72,7 +62,7 @@ public class BaseStateCommands implements CommandExecutor
                 if (args.length == 2)
                 {
                     String regionName = args[1];
-                    success = StateController.instance().removeBaseStateFully(regionName);
+                    success = StateController.instance().removeBaseState(regionName);
                 }
                 sender.sendMessage(removeBaseState(success));
             }
@@ -110,14 +100,16 @@ public class BaseStateCommands implements CommandExecutor
                     sender.hasPermission(INFO_BASESTATE_PERM))
             {
                 boolean success = false;
-                BaseState baseState = null;
+                String baseStateInfo = null;
+                String regionName = null;
+
                 if (args.length == 2)
                 {
-                    String regionName = args[1];
-                    baseState = StateController.instance().getBaseState(regionName);
-                    success = baseState != null;
+                    regionName = args[1];
+                    baseStateInfo = StateController.instance().getBaseStateInfo(regionName);
+                    success = baseStateInfo != null;
                 }
-                sender.sendMessage(info(success, baseState));
+                sender.sendMessage(info(success, regionName));
             }
             else if (args[0].equalsIgnoreCase(LIST_BASESTATE_CMD) &&
                     sender.hasPermission(LIST_BASESTATE_PERM))
@@ -125,10 +117,13 @@ public class BaseStateCommands implements CommandExecutor
                 String baseStates = "";
                 if (args.length == 1)
                 {
-                    for (String baseStateN : FileRead.readBaseStatesNames())
-                        baseStates += ", " + baseStateN;
-                    if (baseStates.startsWith(", "))
-                        baseStates = baseStates.substring(2);
+                    final Set<String> baseStateNames = StateController.instance().getBaseStateNames();
+                    if (baseStateNames != null) {
+                        for (String baseStateN : StateController.instance().getBaseStateNames())
+                            baseStates += ", " + baseStateN;
+                        if (baseStates.startsWith(", "))
+                            baseStates = baseStates.substring(2);
+                    }
                 }
                 sender.sendMessage(listBaseState(baseStates));
             }

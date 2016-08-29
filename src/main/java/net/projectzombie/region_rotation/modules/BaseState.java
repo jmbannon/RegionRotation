@@ -7,12 +7,58 @@ import java.util.UUID;
 
 /**
  * Created by jmbannon on 8/9/16.
- * BaseState represents a WorldGuard region that can be rotated (i.e. switched with) alternative
+ * BaseState represents a WorldGuard region that can be rotated (i.e. switched) with alternative
  * regions of the exact same size. It requires a backup region of itself (i.e. a duplicated
  * region placed outside the map) in case of an error when rotating regions.
  */
 public class BaseState extends RegionState
 {
+    private static final String BASE_STATE_KEY = "region";
+    private static final String ALT_STATE_KEY = "alts";
+    private static final String BACKUP_STATE_KEY = "backup";
+    private static final String CURRENT_STATE_KEY = "current";
+
+    /** @return Root of BaseState path. [root] */
+    static protected String path()
+    {
+        return BASE_STATE_KEY;
+    }
+
+    /** @return BaseState path. [root.baseStateID] */
+    static protected String baseStatePath(final String baseStateID, final UUID worldUID)
+    {
+        return BASE_STATE_KEY + "." + RegionState.toFileID(baseStateID, worldUID);
+    }
+
+    /** @return BaseState child path. [root.baseStateID.childType] */
+    static private String _getChildPath(final String baseStateID,
+                                        final UUID worldUUID,
+                                        final String childType)
+    {
+        return BaseState.baseStatePath(baseStateID, worldUUID) + "." + childType;
+    }
+
+    /** @return AltState path. [root.baseStateID.altPath] */
+    static protected String altStatePath(final String baseStateID,
+                                         final UUID worldUID)
+    {
+        return _getChildPath(baseStateID, worldUID, ALT_STATE_KEY);
+    }
+
+    /** @return CurrentState path. [root.baseStateID.currentPath] */
+    static protected String currentStatePath(final String baseStateID,
+                                             final UUID worldUID)
+    {
+        return _getChildPath(baseStateID, worldUID, CURRENT_STATE_KEY);
+    }
+
+    /** @return BackupState path. [root.baseStateID.backupPath] */
+    static protected String backupStatePath(final String baseStateID,
+                                            final UUID worldUID)
+    {
+        return _getChildPath(baseStateID, worldUID, BACKUP_STATE_KEY);
+    }
+
     /** AltState's belong to a single BaseState: a BaseState can rotate to an AltState. */
     static private class AltState extends RegionState
     {
@@ -23,14 +69,11 @@ public class BaseState extends RegionState
         }
     }
 
-    public String getBackupBaseStateID()
-    { return toSaveID(backupBaseState.getRegionName(), backupBaseState.getWorldUID()); }
-
     /** Used to store valid AltStates that the BaseState can switch to. */
-    private HashMap<String, AltState> altStates;
+    private final HashMap<String, AltState> altStates;
 
     /** If anything is corrupted in the BaseState, it can reset to backupBaseState. */
-    private AltState backupBaseState;
+    private final AltState backupBaseState;
 
     /** Keeps track of the current AltState. */
     private String currentState;
@@ -67,13 +110,48 @@ public class BaseState extends RegionState
         this(regionName, worldUID, new AltState(backupRegionName, backupRegionWorldUID));
     }
 
+    /** @return BASE_STATE_KEY.baseStateFileID */
+    protected String getPath()
+    {
+        return baseStatePath(this.getRegionName(), this.getWorldUID());
+    }
+
+    /** @return BASE_STATE_KEY.baseStateFileID.ALT_STATE_KEY */
+    protected String getAltStatePath()
+    {
+        return altStatePath(this.getRegionName(), this.getWorldUID());
+    }
+
+    /** @return BASE_STATE_KEY.baseStateFileID.BACKUP_STATE_KEY */
+    protected String getBackupStatePath()
+    {
+        return backupStatePath(this.getRegionName(), this.getWorldUID());
+    }
+
+    /** @return BASE_STATE_KEY.baseStateFileID.CURRENT_STATE_KEY */
+    protected String getCurrentStatePath()
+    {
+        return currentStatePath(this.getRegionName(), this.getWorldUID());
+    }
+
+    protected String getBackupStateID()
+    {
+        return this.backupBaseState.getFileID();
+    }
+
+    protected String getCurrentStateID()
+    {
+        return this.currentState;
+    }
+
+
     /**
      * Adds an AltState that can be rotated with BaseState.
      * @param altRegionName WorldGuard region name of the AltState.
      * @param altRegionWorldUID World UUID of the AltState region.
      * @return True if the AltState was valid and added successfully. False otherwise.
      */
-    public boolean addAltState(final String altRegionName,
+    protected boolean addAltState(final String altRegionName,
                                final UUID altRegionWorldUID)
     {
         final AltState altState = new AltState(altRegionName, altRegionWorldUID);
@@ -90,9 +168,9 @@ public class BaseState extends RegionState
      * Removes an AltState from the BaseState.
      * @param altRegionName WorldGuard region name of the AltState.
      */
-    public void removeAltState(final String altRegionName)
+    protected boolean removeAltState(final String altRegionName)
     {
-        altStates.remove(altRegionName);
+        return altStates.remove(altRegionName) != null;
     }
 
     /**
@@ -100,16 +178,16 @@ public class BaseState extends RegionState
      * @param altRegionName WorldGuard region name of alt state.
      * @return True if BaseState
      */
-    public boolean containsAltState(final String altRegionName)
+    protected boolean containsAltState(final String altRegionName)
     {
         return altStates.containsKey(altRegionName) && altStates.get(altRegionName).isValid();
     }
 
-    public List<String> getAltStateIDs()
+    protected List<String> getAltStateIDs()
     {
         List<String> holder = new ArrayList<>();
         for (AltState state : altStates.values())
-            holder.add(toSaveID(state.getRegionName(), state.getWorldUID()));
+            holder.add(state.getFileID());
 
         return holder;
     }
@@ -118,7 +196,7 @@ public class BaseState extends RegionState
      * Resets the BaseState to the backup-region.
      * @return True if the BaseState was reset successfully. False otherwise.
      */
-    public boolean resetState()
+    protected boolean resetState()
     {
         final boolean resetAir = true;
         if (_rotateState(backupBaseState, resetAir))
@@ -140,7 +218,7 @@ public class BaseState extends RegionState
         final AltState altState = altStates.get(altStateName);
         if (_rotateState(altState, rotateAir))
         {
-            this.currentState = altState.getRegionName();
+            this.currentState = altState.getFileID();
             return true;
         }
         return false;
@@ -232,16 +310,4 @@ public class BaseState extends RegionState
 
         return builder.toString();
     }
-
-    /** Used for storing a BaseState or AltState, serves as an ID for it. */
-    public static String toSaveID(String regionNameOut, UUID worldUIDOut)
-    { return regionNameOut + "," + worldUIDOut; }
-
-    /** Used to read stuff from disc, should be the toSaveID() result. */
-    public static String toRegion(String iD)
-    { return iD.split(",").length > 1 ? iD.split(",")[0] : null; }
-
-    /** Used to read stuff from disc, should be the toSaveID() result. */
-    public static UUID toWorldUID(String iD)
-    { return iD.split(",").length > 1 ? UUID.fromString(iD.split(",")[1]) : null; }
 }

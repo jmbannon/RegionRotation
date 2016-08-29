@@ -1,76 +1,88 @@
 package net.projectzombie.region_rotation.modules;
 
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import net.projectzombie.region_rotation.file.FileRead;
-import net.projectzombie.region_rotation.file.FileWrite;
-import org.bukkit.plugin.Plugin;
+import net.projectzombie.region_rotation.main.Main;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 
 import java.util.HashMap;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by jb on 8/10/16.
  */
 public class StateController
 {
+    static private final String DEFAULT_FILE_NAME = "region_rotation.yml";
     private static StateController STATE_CONTROLLER_SINGLETON = null;
 
     /** Initializes the StateController. Must be called first in Main. */
-    static public void init(final Plugin plugin)
+    static public void init()
     {
-        STATE_CONTROLLER_SINGLETON = new StateController(plugin);
+        // TODO: ability to create multiple state controllers
+        STATE_CONTROLLER_SINGLETON = new StateController(
+                new StateBuffer(Main.plugin().getDataFolder(), DEFAULT_FILE_NAME));
     }
 
     /** @return Initialized StateController. */
     static public StateController instance() { return STATE_CONTROLLER_SINGLETON; }
 
-    /** @return RegionRotation plugin. */
-    static public Plugin plugin()            { return PLUGIN; }
-
-    /** @return WorldGuard plugin. */
-    static public Plugin WGplugin()          { return WG_PLUGIN; }
-
     private final HashMap<String, BaseState> states;
-    private static Plugin PLUGIN;
-    private static Plugin WG_PLUGIN;
+    private final StateBuffer buffer;
 
     /**
      * Constructs the singleton StateController and initializes the static plugins.
-     * @param plugin Plugin from main initialization.
      */
-    private StateController(final Plugin plugin)
+    private StateController(final StateBuffer buffer)
     {
-        PLUGIN = plugin;
-        WG_PLUGIN = WGBukkit.getPlugin();
-        states = new HashMap<>();
+        this.buffer = buffer;
+        this.states = new HashMap<>();
 
         // Adding baseStates from disc.
-        Set<BaseState> baseStates = FileRead.readBaseStates();
-        if (baseStates != null)
-        {
-            for (BaseState baseState : FileRead.readBaseStates())
-                states.put(baseState.getRegionName(), baseState);
+        if (buffer.isValid()) {
+            Set<BaseState> baseStates = buffer.readBaseStates();
+            if (baseStates != null) {
+                for (BaseState baseState : baseStates) {
+                    states.put(baseState.getRegionName(), baseState);
+                }
+            }
         }
     }
 
-    public final BaseState getBaseState(final String rName)
-    { return states.containsKey(rName) ? states.get(rName) : null; }
+    public String getBaseStateInfo(final String regionName)
+    {
+        final BaseState toInfo = states.get(regionName);
+        if (toInfo != null)
+        {
+            return toInfo.toString();
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     /** To be used onDisable() to ensure all BaseStates are there after restart. *
      * @Return If the save was successful.
      */
-    public boolean saveBaseStatesToDisc()
-    { return FileWrite.writeBaseStates(states.values()); }
+    public boolean saveBaseStates()
+    {
+        return buffer.writeBaseStates(states.values());
+    }
+
+    public Set<String> getBaseStateNames()
+    {
+        return buffer.readBaseStateNames();
+    }
+
 
     /**
      * Adds a BaseState to the StateController
      * @param state BaseState to add.
      * @return True if successful. False if failed.
      */
-    public boolean addBaseState(final BaseState state)
+    private boolean _addBaseState(final BaseState state)
     {
-        if (state.isValid())
+        if (state.isValid() && buffer.writeBaseState(state))
         {
             states.put(state.getRegionName(), state);
             return true;
@@ -78,43 +90,51 @@ public class StateController
         return false;
     }
 
-    public boolean addAltState(final String regionName, final String altRegionName,
-                               final UUID altRegionWorldUID)
+    public boolean addBaseState(final String regionName,
+                                final World world,
+                                final String backupRegionName,
+                                final World backupWorld)
     {
-        if (states.get(regionName).isValid())
+        if (world != null && backupWorld != null)
         {
-            return states.get(regionName).addAltState(altRegionName, altRegionWorldUID);
+            return _addBaseState(new BaseState(
+                    regionName,
+                    world.getUID(),
+                    backupRegionName,
+                    backupWorld.getUID()));
         }
-        return false;
-    }
-
-    /**
-     * Removes a BaseState from the StateController and erases it from disc.
-     * @param baseStateRegionName Name of the BaseState region.
-     * @return Removed BaseState if it exists. Null otherwise.
-     */
-    public BaseState removeBaseState(final String baseStateRegionName)
-    {
-        return states.remove(baseStateRegionName);
-    }
-
-    /**
-     * Removes a BaseState from the StateController and erases it from disc.
-     * @param baseStateRegionName Name of the BaseState region.
-     * @return Removed BaseState if it exists. Null otherwise.
-     */
-    public boolean removeBaseStateFully(final String baseStateRegionName)
-    {
-        BaseState baseState = states.get(baseStateRegionName);
-        if (baseState == null)
+        else
+        {
             return false;
-        // Erase from disc
-        boolean successful = FileWrite.flushBaseState(baseState, baseState.getWorld());
+        }
+    }
 
-        //Erase from ram
-        removeBaseState(baseStateRegionName);
+    public boolean addAltState(final String regionName,
+                               final String altRegionName,
+                               final World altRegionWorld)
+    {
+        final BaseState state = states.get(regionName);
 
-        return successful;
+        if (state != null
+                && state.isValid()
+                && altRegionWorld != null
+                && state.addAltState(altRegionName, altRegionWorld.getUID()))
+        {
+            this.states.put(regionName, state);
+            return this.buffer.writeBaseState(state);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeBaseState(final String baseStateRegionName)
+    {
+        BaseState toRemove = states.remove(baseStateRegionName);
+        if (toRemove != null) {
+            return buffer.flushBaseState(toRemove);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -155,8 +175,13 @@ public class StateController
         {
             final BaseState baseState = states.get(baseStateName);
             final boolean success = baseState.rotateState(altStateName, rotateAir);
-            if (broadcastMessage && success) {
-                baseState.getCurrentState().broadcastMessage();
+            if (success)
+            {
+                buffer.writeBaseState(baseState);
+                if (broadcastMessage)
+                {
+                    baseState.getCurrentState().broadcastMessage();;
+                }
             }
             return success;
         }

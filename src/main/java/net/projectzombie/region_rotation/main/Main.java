@@ -7,10 +7,11 @@ package net.projectzombie.region_rotation.main;
 
 import static net.projectzombie.region_rotation.controller.BaseStateText.*;
 
+import com.sk89q.worldguard.bukkit.WGBukkit;
 import net.projectzombie.region_rotation.controller.BaseStateCommands;
-import net.projectzombie.region_rotation.file.FileBufferController;
 import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,12 +21,16 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Main extends JavaPlugin
 {
+    static private JavaPlugin PLUGIN;
+
+    static public JavaPlugin plugin()
+    { return PLUGIN; }
+
     @Override
     public void onEnable()
     {
-        // Start up read ins and sorts.
-        FileBufferController.init(this);
-        StateController.init(this);
+        PLUGIN = this;
+        StateController.init();
 
         // Adding perms.
         String[] perms = {ADD_BASESTATE_PERM, ADD_ALT_BASESTATE_PERM, REMOVE_BASESTATE_PERM,
@@ -41,7 +46,7 @@ public class Main extends JavaPlugin
     @Override
     public void onDisable()
     {
-        StateController.instance().saveBaseStatesToDisc();
+        StateController.instance().saveBaseStates();
         this.getLogger().info("DynamicRegions disabled!");
     }
 }
