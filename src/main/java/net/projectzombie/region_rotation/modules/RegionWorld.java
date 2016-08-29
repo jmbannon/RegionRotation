@@ -24,20 +24,19 @@ public abstract class RegionWorld
     private final UUID worldUID;
     private final boolean isValid;
     
-    public RegionWorld(final UUID worldUID)
+    protected RegionWorld(final UUID worldUID)
     {
         this.worldUID = worldUID;
         this.isValid = this.getWorld() != null && getRegionManager() != null;
     }
 
     /** @return Whether the object is valid for use or not. */
-    public boolean isValid()          { return this.isValid; }
+    protected boolean isValid()          { return this.isValid; }
 
-
-    public UUID          getWorldUID()      { return this.worldUID; }
-    public World         getWorld()         { return Bukkit.getWorld(worldUID); }
-    public LocalWorld    getLocalWorld()    { return com.sk89q.worldedit.bukkit.BukkitUtil.getLocalWorld(this.getWorld()); }
-    public RegionManager getRegionManager() { return WGBukkit.getRegionManager(getWorld()); }
+    protected UUID          getWorldUID()      { return this.worldUID; }
+    protected World         getWorld()         { return Bukkit.getWorld(worldUID); }
+    protected LocalWorld    getLocalWorld()    { return com.sk89q.worldedit.bukkit.BukkitUtil.getLocalWorld(this.getWorld()); }
+    protected RegionManager getRegionManager() { return WGBukkit.getRegionManager(getWorld()); }
 
 
 }
