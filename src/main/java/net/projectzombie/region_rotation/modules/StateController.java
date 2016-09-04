@@ -1,7 +1,8 @@
 package net.projectzombie.region_rotation.modules;
 
+import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import net.projectzombie.region_rotation.main.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.util.HashMap;
@@ -90,6 +91,28 @@ public class StateController
         return false;
     }
 
+    public boolean regionExists(final String regionName,
+                                final World world)
+    {
+        final RegionManager rm = WGBukkit.getRegionManager(world);
+        if (rm != null) {
+            return rm.hasRegion(regionName);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean baseStateExists(final String regionName)
+    {
+        return states.containsKey(regionName);
+    }
+
+    public boolean altStateExists(final String baseStateName, final String altStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        return baseState != null && baseState.containsAltState(altStateName);
+    }
+
     public boolean addBaseState(final String regionName,
                                 final World world,
                                 final String backupRegionName,
@@ -131,7 +154,22 @@ public class StateController
     {
         BaseState toRemove = states.remove(baseStateRegionName);
         if (toRemove != null) {
-            return buffer.flushBaseState(toRemove);
+            return buffer.eraseBaseState(toRemove);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAltState(final String baseStateName, final String altStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        if (baseState != null) {
+            final boolean success = baseState.removeAltState(altStateName);
+            if (success) {
+                return buffer.eraseAltState(baseState, altStateName);
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

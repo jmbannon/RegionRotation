@@ -89,7 +89,7 @@ public class StateBuffer
         String pathToBaseState = BaseState.baseStatePath(regionName, worldUID);
         String pathToBackupS = BaseState.backupStatePath(regionName, worldUID);
         String pathToCurrentS = BaseState.currentStatePath(regionName, worldUID);
-        String pathToAltState = BaseState.altStatePath(regionName, worldUID);
+        String pathToAltState = BaseState.altStatesPath(regionName, worldUID);
 
         if (this.yml.contains(pathToBaseState))
         {
@@ -194,10 +194,19 @@ public class StateBuffer
     /**
      * Used to erase the BaseState from disc.
      */
-    protected boolean flushBaseState(final BaseState baseState)
+    protected boolean eraseBaseState(final BaseState baseState)
     {
         this.yml.set(baseState.getPath(), null);
         return this.saveFile();
+    }
+
+    protected boolean eraseAltState(final BaseState baseState,
+                                    final String altStateName)
+    {
+        if (baseState.getAltStateIDs().contains(altStateName)) {
+            baseState.removeAltState(altStateName);
+        }
+        return this.writeBaseState(baseState);
     }
 
     /**

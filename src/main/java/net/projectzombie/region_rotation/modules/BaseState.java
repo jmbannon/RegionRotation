@@ -38,11 +38,19 @@ public class BaseState extends RegionState
         return BaseState.baseStatePath(baseStateID, worldUUID) + "." + childType;
     }
 
-    /** @return AltState path. [root.baseStateID.altPath] */
-    static protected String altStatePath(final String baseStateID,
-                                         final UUID worldUID)
+    /** @return AltStates path. [root.baseStateID.altPath] */
+    static protected String altStatesPath(final String baseStateID,
+                                          final UUID worldUID)
     {
         return _getChildPath(baseStateID, worldUID, ALT_STATE_KEY);
+    }
+
+    /** @return AltState path. [root.baseStateID.altPath.altStateID] */
+    static protected String altStatePath(final String baseStateID,
+                                          final UUID worldUID,
+                                          final String altStateID)
+    {
+        return altStatesPath(baseStateID, worldUID) + "." + altStateID;
     }
 
     /** @return CurrentState path. [root.baseStateID.currentPath] */
@@ -116,10 +124,15 @@ public class BaseState extends RegionState
         return baseStatePath(this.getRegionName(), this.getWorldUID());
     }
 
+    protected String getAltStatePath(final String altStateName)
+    {
+        return altStatePath(this.getRegionName(), this.getWorldUID(), altStateName);
+    }
+
     /** @return BASE_STATE_KEY.baseStateFileID.ALT_STATE_KEY */
     protected String getAltStatePath()
     {
-        return altStatePath(this.getRegionName(), this.getWorldUID());
+        return altStatesPath(this.getRegionName(), this.getWorldUID());
     }
 
     /** @return BASE_STATE_KEY.baseStateFileID.BACKUP_STATE_KEY */
