@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -88,7 +89,14 @@ public abstract class RegionState extends RegionWorld
     {
         if (this.rotateBroadcastMessage != null) {
             Bukkit.broadcastMessage(this.rotateBroadcastMessage);
+        } else {
+            Bukkit.getLogger().info("Attempted to broadcast "
+                    + this.getDisplayName() + " but its message is null.");
         }
+    }
+
+    protected String getDisplayName() {
+        return this.regionName + "@" + this.getWorld().getName();
     }
 
     protected ProtectedRegion getProtectedRegion()
@@ -249,6 +257,11 @@ public abstract class RegionState extends RegionWorld
 
         Iterator<Block> copyIter = copyState.getSortedBlockIterator();
         Iterator<Block> pasteIter = pasteState.getSortedBlockIterator();
+
+        if (copyIter == null || pasteIter == null) {
+            return false;
+        }
+
         Block copyBlk, pasteBlk;
         Material copyMat, pasteMat;
         while (copyIter.hasNext() && pasteIter.hasNext())
@@ -263,8 +276,15 @@ public abstract class RegionState extends RegionWorld
                 continue;
             }
             // Data will have to change when MC adds material types for wool.
-            if (copyMat.equals(pasteMat) && copyBlk.getData() == pasteBlk.getData())
+            if (!copyMat.equals(pasteMat) || (copyMat.equals(pasteMat) && copyBlk.getData() != pasteBlk.getData()))
             {
+                // Clears inventory contents
+                if (pasteBlk.getState() instanceof InventoryHolder) {
+                    InventoryHolder pasteChest = (InventoryHolder)pasteBlk.getState();
+                    pasteChest.getInventory().clear();
+                    pasteBlk.getState().update();
+                }
+
                 pasteBlk.setType(copyMat);
                 pasteBlk.setData(copyBlk.getData());
                 if (copyBlk.getState() instanceof Chest)

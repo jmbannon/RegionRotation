@@ -1,8 +1,10 @@
 package net.projectzombie.region_rotation.modules;
 
+import net.projectzombie.region_rotation.commands.RRText;
+import org.bukkit.Bukkit;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,11 +40,19 @@ public class BaseState extends RegionState
         return BaseState.baseStatePath(baseStateID, worldUUID) + "." + childType;
     }
 
-    /** @return AltState path. [root.baseStateID.altPath] */
-    static protected String altStatePath(final String baseStateID,
-                                         final UUID worldUID)
+    /** @return AltStates path. [root.baseStateID.altPath] */
+    static protected String altStatesPath(final String baseStateID,
+                                          final UUID worldUID)
     {
         return _getChildPath(baseStateID, worldUID, ALT_STATE_KEY);
+    }
+
+    /** @return AltState path. [root.baseStateID.altPath.altStateID] */
+    static protected String altStatePath(final String baseStateID,
+                                          final UUID worldUID,
+                                          final String altStateID)
+    {
+        return altStatesPath(baseStateID, worldUID) + "." + altStateID;
     }
 
     /** @return CurrentState path. [root.baseStateID.currentPath] */
@@ -69,13 +79,13 @@ public class BaseState extends RegionState
         }
     }
 
-    /** Used to store valid AltStates that the BaseState can switch to. */
+    /** Stores valid AltStates that the BaseState can switch to. Key should be WG region name */
     private final HashMap<String, AltState> altStates;
 
     /** If anything is corrupted in the BaseState, it can reset to backupBaseState. */
     private final AltState backupBaseState;
 
-    /** Keeps track of the current AltState. */
+    /** Keeps track of the current AltState. Should be WG region name */
     private String currentState;
 
     /**
@@ -119,7 +129,7 @@ public class BaseState extends RegionState
     /** @return BASE_STATE_KEY.baseStateFileID.ALT_STATE_KEY */
     protected String getAltStatePath()
     {
-        return altStatePath(this.getRegionName(), this.getWorldUID());
+        return altStatesPath(this.getRegionName(), this.getWorldUID());
     }
 
     /** @return BASE_STATE_KEY.baseStateFileID.BACKUP_STATE_KEY */
@@ -134,16 +144,14 @@ public class BaseState extends RegionState
         return currentStatePath(this.getRegionName(), this.getWorldUID());
     }
 
-    protected String getBackupStateID()
+    protected String getBackupStateFileID()
     {
         return this.backupBaseState.getFileID();
     }
 
-    protected String getCurrentStateID()
-    {
-        return this.currentState;
+    protected boolean isRotated() {
+        return this.currentState.equals(this.getRegionName());
     }
-
 
     /**
      * Adds an AltState that can be rotated with BaseState.
@@ -157,7 +165,7 @@ public class BaseState extends RegionState
         final AltState altState = new AltState(altRegionName, altRegionWorldUID);
         if (this.canRotate(altState))
         {
-            altStates.put(altRegionName, altState);
+            altStates.put(altState.getRegionName(), altState);
             return true;
         } else {
             return false;
@@ -183,12 +191,26 @@ public class BaseState extends RegionState
         return altStates.containsKey(altRegionName) && altStates.get(altRegionName).isValid();
     }
 
-    protected List<String> getAltStateIDs()
+    /** Broadcasts the current state's message. */
+    protected void broadcastCurrentState()
     {
-        List<String> holder = new ArrayList<>();
-        for (AltState state : altStates.values())
-            holder.add(state.getFileID());
+        RegionState toBroadcast = (this.isRotated()) ? altStates.get(currentState) : this;
+        if (toBroadcast != null) {
+            toBroadcast.broadcastMessage();
+        }
+    }
 
+    protected ArrayList<String> getAltStateFileIDs()
+    {
+        ArrayList<String> holder = new ArrayList<>();
+        altStates.values().forEach(alt -> holder.add(alt.getFileID()));
+        return holder;
+    }
+
+    protected ArrayList<String> getAltStateRegionNames()
+    {
+        ArrayList<String> holder = new ArrayList<>();
+        altStates.values().forEach(alt -> holder.add(alt.getRegionName()));
         return holder;
     }
 
@@ -199,26 +221,32 @@ public class BaseState extends RegionState
     protected boolean resetState()
     {
         final boolean resetAir = true;
-        if (_rotateState(backupBaseState, resetAir))
+        if (this.currentState.equals(this.getRegionName())
+                || this.currentState.equals(this.backupBaseState.getRegionName()))
+        {
+            return true;
+        }
+        else if (_rotateState(backupBaseState, resetAir))
         {
             this.currentState = this.getRegionName();
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     /**
      * Rotates the BaseState with the specified AltState.
-     * @param altStateName Name of the AltState to rotate into the BaseState.
+     * @param altStateName Name of the AltState WG region to rotate into the BaseState.
      * @return True if the BaseState was rotated successfully. False otherwise.
      */
-    public boolean rotateState(final String altStateName,
+    protected boolean rotateState(final String altStateName,
                                final boolean rotateAir)
     {
         final AltState altState = altStates.get(altStateName);
         if (_rotateState(altState, rotateAir))
         {
-            this.currentState = altState.getFileID();
+            this.currentState = altState.getRegionName();
             return true;
         }
         return false;
@@ -228,7 +256,7 @@ public class BaseState extends RegionState
      * Returns the current region within the confines of the BaseState region.
      * @return Current RegionState.
      */
-    public RegionState getCurrentState()
+    protected RegionState getCurrentState()
     {
         if (this.currentState.equals(this.getRegionName()))
         {
@@ -270,43 +298,26 @@ public class BaseState extends RegionState
      */
     public String toString()
     {
-        final String rAndWSeparator = "@";
-
         StringBuilder builder = new StringBuilder();
 
-        // Main Region adding
-        builder.append("Main R: ");
-        builder.append(getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(getWorld().getName());
+        builder.append(RRText.formatTitle("Base Region: "));
+        builder.append(this.getDisplayName());
+        builder.append('\n');
 
-        // Current region adding
-        builder.append(", Current: ");
-        builder.append(getCurrentState().getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(getCurrentState().getWorld().getName());
+        builder.append(RRText.formatTitle("Current Region: "));
+        builder.append(getCurrentState().getDisplayName());
+        builder.append('\n');
 
-        // Backup state adding.
-        builder.append(", Backup: ");
-        builder.append(backupBaseState.getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(backupBaseState.getWorld().getName());
+        builder.append(RRText.formatTitle("Backup Region: "));
+        builder.append(this.backupBaseState.getDisplayName());
+        builder.append('\n');
 
-        // Alts states being added.
-        if (altStates.isEmpty())
-            builder.append(", No alts.");
-        else
-        {
-            builder.append(", Alts: ");
-            for (AltState alt : altStates.values())
-            {
-                builder.append("-"); // Starter
-                builder.append(alt.getRegionName());
-                builder.append(rAndWSeparator);
-                builder.append(alt.getWorld().getName());
-                builder.append(" "); // Spacing the alts
-            }
-        }
+        builder.append(RRText.formatTitle("Alt Region(s):\n"));
+        altStates.values().forEach(alt -> {
+            builder.append(" - ");
+            builder.append(alt.getDisplayName());
+            builder.append('\n');
+        });
 
         return builder.toString();
     }

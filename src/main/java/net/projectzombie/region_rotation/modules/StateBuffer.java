@@ -89,7 +89,7 @@ public class StateBuffer
         String pathToBaseState = BaseState.baseStatePath(regionName, worldUID);
         String pathToBackupS = BaseState.backupStatePath(regionName, worldUID);
         String pathToCurrentS = BaseState.currentStatePath(regionName, worldUID);
-        String pathToAltState = BaseState.altStatePath(regionName, worldUID);
+        String pathToAltState = BaseState.altStatesPath(regionName, worldUID);
 
         if (this.yml.contains(pathToBaseState))
         {
@@ -164,10 +164,10 @@ public class StateBuffer
     protected boolean writeBaseState(final BaseState baseState)
     {
         // Write alts
-        this.yml.set(baseState.getAltStatePath(), baseState.getAltStateIDs());
+        this.yml.set(baseState.getAltStatePath(), baseState.getAltStateFileIDs());
 
         // Write backup
-        this.yml.set(baseState.getBackupStatePath(), baseState.getBackupStateID());
+        this.yml.set(baseState.getBackupStatePath(), baseState.getBackupStateFileID());
 
         // Write current state
         this.yml.set(baseState.getCurrentStatePath(), baseState.getCurrentState().getFileID());
@@ -194,10 +194,19 @@ public class StateBuffer
     /**
      * Used to erase the BaseState from disc.
      */
-    protected boolean flushBaseState(final BaseState baseState)
+    protected boolean eraseBaseState(final BaseState baseState)
     {
         this.yml.set(baseState.getPath(), null);
         return this.saveFile();
+    }
+
+    protected boolean eraseAltState(final BaseState baseState,
+                                    final String altStateName)
+    {
+        if (baseState.getAltStateFileIDs().contains(altStateName)) {
+            baseState.removeAltState(altStateName);
+        }
+        return this.writeBaseState(baseState);
     }
 
     /**
@@ -217,6 +226,15 @@ public class StateBuffer
             }
         } else {
             return false;
+        }
+    }
+
+    protected boolean destroy() {
+        this.isValid = false;
+        if (file != null) {
+            return file.delete();
+        } else {
+            return true;
         }
     }
 }

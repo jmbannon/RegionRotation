@@ -1,9 +1,11 @@
 package net.projectzombie.region_rotation.modules;
 
-import net.projectzombie.region_rotation.main.Main;
-import org.bukkit.Bukkit;
+import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.World;
+import org.bukkit.block.Chest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -12,32 +14,17 @@ import java.util.Set;
  */
 public class StateController
 {
-    static private final String DEFAULT_FILE_NAME = "region_rotation.yml";
-    private static StateController STATE_CONTROLLER_SINGLETON = null;
-
-    /** Initializes the StateController. Must be called first in Main. */
-    static public void init()
-    {
-        // TODO: ability to create multiple state controllers
-        STATE_CONTROLLER_SINGLETON = new StateController(
-                new StateBuffer(Main.plugin().getDataFolder(), DEFAULT_FILE_NAME));
-    }
-
-    /** @return Initialized StateController. */
-    static public StateController instance() { return STATE_CONTROLLER_SINGLETON; }
-
+    private final String name;
     private final HashMap<String, BaseState> states;
     private final StateBuffer buffer;
 
-    /**
-     * Constructs the singleton StateController and initializes the static plugins.
-     */
-    private StateController(final StateBuffer buffer)
+    protected StateController(final String name,
+                              final StateBuffer buffer)
     {
+        this.name = name;
         this.buffer = buffer;
         this.states = new HashMap<>();
 
-        // Adding baseStates from disc.
         if (buffer.isValid()) {
             Set<BaseState> baseStates = buffer.readBaseStates();
             if (baseStates != null) {
@@ -48,90 +35,182 @@ public class StateController
         }
     }
 
-    public String getBaseStateInfo(final String regionName)
-    {
+    /** @return Name of StateController. */
+    public String getName() {
+        return this.name;
+    }
+
+    public String getBaseStateInfo(final String regionName) {
         final BaseState toInfo = states.get(regionName);
-        if (toInfo != null)
-        {
+        if (toInfo != null) {
             return toInfo.toString();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    /** To be used onDisable() to ensure all BaseStates are there after restart. *
-     * @Return If the save was successful.
-     */
-    public boolean saveBaseStates()
-    {
+    /**  @Return If all BaseStates were saved successful. */
+    protected boolean saveBaseStates() {
         return buffer.writeBaseStates(states.values());
     }
 
-    public Set<String> getBaseStateNames()
+    /** @return ArrayList of all BaseState display names. In the form of 'regionName@regionWorld. */
+    public ArrayList<String> getBaseStateDisplayNames()
     {
-        return buffer.readBaseStateNames();
+        final ArrayList<String> toRet = new ArrayList<>();
+        states.values().forEach(baseState -> toRet.add(baseState.getDisplayName()));
+        return toRet;
     }
 
+    /** @return ArrayList of all BaseState region names. */
+    public ArrayList<String> getBaseStateRegionNames()
+    {
+        final ArrayList<String> toRet = new ArrayList<>();
+        states.values().forEach(baseState -> toRet.add(baseState.getRegionName()));
+        return toRet;
+    }
+
+    /**
+     * @param baseStateName BaseState WG region name.
+     * @return ArrayList of all AltState WG region names.
+     */
+    public ArrayList<String> getAltStateRegionNames(final String baseStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        if (baseState != null) {
+            return baseState.getAltStateRegionNames();
+        } else {
+            return null;
+        }
+    }
+
+    /** @return HashMap with the form {@literal <BaseStateRegionName, AltStateRegionNames>}. */
+    public HashMap<String, ArrayList<String>> getBaseStateStringMap()
+    {
+        final HashMap<String, ArrayList<String>> toRet = new HashMap<>();
+        this.getBaseStateRegionNames().forEach(name ->
+                toRet.put(name, this.getAltStateRegionNames(name)));
+        return toRet;
+    }
+
+    /** @return ArrayList of Chests in the BaseState region (i.e. whatever is the current state). */
+    public ArrayList<Chest> getCurrentStateChests(final String baseStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        if (baseState != null) {
+            return baseState.getRegionChests();
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Adds a BaseState to the StateController
-     * @param state BaseState to add.
+     *
+     * @param state BaseState to create.
      * @return True if successful. False if failed.
      */
-    private boolean _addBaseState(final BaseState state)
-    {
-        if (state.isValid() && buffer.writeBaseState(state))
-        {
+    private boolean _addBaseState(final BaseState state) {
+        if (state.isValid() && buffer.writeBaseState(state)) {
             states.put(state.getRegionName(), state);
             return true;
         }
         return false;
     }
 
+    public boolean regionExists(final String regionName,
+                                final World world) {
+        final RegionManager rm = WGBukkit.getRegionManager(world);
+        if (rm != null) {
+            return rm.hasRegion(regionName);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean baseStateExists(final String regionName) {
+        return states.containsKey(regionName);
+    }
+
+    public boolean altStateExists(final String baseStateName, final String altStateName) {
+        final BaseState baseState = states.get(baseStateName);
+        return baseState != null && baseState.containsAltState(altStateName);
+    }
+
+    /**
+     * Adds a BaseState to the StateController. Must have a backup region.
+     * @param regionName BaseState WG region name.
+     * @param world World of BaseState region.
+     * @param backupRegionName Backup WG region name.
+     * @param backupWorld World of backup region.
+     * @return True if the BaseState was added successfully. False otherwise.
+     */
     public boolean addBaseState(final String regionName,
                                 final World world,
                                 final String backupRegionName,
-                                final World backupWorld)
-    {
-        if (world != null && backupWorld != null)
-        {
+                                final World backupWorld) {
+        if (world != null && backupWorld != null) {
             return _addBaseState(new BaseState(
                     regionName,
                     world.getUID(),
                     backupRegionName,
                     backupWorld.getUID()));
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public boolean addAltState(final String regionName,
+    /**
+     * @param baseStateName Name of the BaseState WG Region.
+     * @return True if the BaseState is rotated. False otherwise.
+     */
+    public boolean isRotated(final String baseStateName) {
+        final BaseState state = states.get(baseStateName);
+        return state != null && state.isRotated();
+    }
+
+    /**
+     * Adds an AltState to specified BaseState.
+     * @param baseStateRegionName BaseState WG region name.
+     * @param altRegionName AltState WG region name.
+     * @param altRegionWorld World of AltState region.
+     * @return True if the AltState was added successfully. False otherwise.
+     */
+    public boolean addAltState(final String baseStateRegionName,
                                final String altRegionName,
-                               final World altRegionWorld)
-    {
-        final BaseState state = states.get(regionName);
+                               final World altRegionWorld) {
+        final BaseState state = states.get(baseStateRegionName);
 
         if (state != null
                 && state.isValid()
                 && altRegionWorld != null
-                && state.addAltState(altRegionName, altRegionWorld.getUID()))
-        {
-            this.states.put(regionName, state);
+                && state.addAltState(altRegionName, altRegionWorld.getUID())) {
+            this.states.put(baseStateRegionName, state);
             return this.buffer.writeBaseState(state);
         } else {
             return false;
         }
     }
 
-    public boolean removeBaseState(final String baseStateRegionName)
-    {
+    public boolean removeBaseState(final String baseStateRegionName) {
         BaseState toRemove = states.remove(baseStateRegionName);
         if (toRemove != null) {
-            return buffer.flushBaseState(toRemove);
+            return buffer.eraseBaseState(toRemove);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeAltState(final String baseStateName,
+                                  final String altStateName) {
+        final BaseState baseState = states.get(baseStateName);
+        if (baseState != null) {
+            final boolean success = baseState.removeAltState(altStateName);
+            if (success) {
+                return buffer.eraseAltState(baseState, altStateName);
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -139,18 +218,16 @@ public class StateController
 
     /**
      * Resets the BaseState by rotating to its backup state.
+     *
      * @param baseStateName BaseState to reset.
      * @return True if successful. False if failed.
      */
     public boolean resetBaseState(final String baseStateName,
-                                  final boolean broadcast)
-    {
-        if (states.containsKey(baseStateName))
-        {
+                                  final boolean broadcast) {
+        if (states.containsKey(baseStateName)) {
             final BaseState baseState = states.get(baseStateName);
             final boolean success = baseState.resetState();
-            if (broadcast && success)
-            {
+            if (broadcast && success) {
                 baseState.broadcastMessage();
             }
             return success;
@@ -160,27 +237,24 @@ public class StateController
 
     /**
      * Rotates an AltState into a BaseState given their respective region names.
-     * @param baseStateName WorldGuard region name of BaseState.
-     * @param altStateName WorldGuard region name of AltState.
-     * @param rotateAir Boolean to copy air to BaseState.
+     *
+     * @param baseStateName    WorldGuard region name of BaseState.
+     * @param altStateName     WorldGuard region name of AltState.
+     * @param rotateAir        Boolean to copy air to BaseState.
      * @param broadcastMessage Boolean to broadcast AltState message on success.
      * @return True if successful. False if failed.
      */
     public boolean rotateBaseStateBroadcast(final String baseStateName,
                                             final String altStateName,
                                             final boolean rotateAir,
-                                            final boolean broadcastMessage)
-    {
-        if (states.containsKey(baseStateName))
-        {
+                                            final boolean broadcastMessage) {
+        if (states.containsKey(baseStateName)) {
             final BaseState baseState = states.get(baseStateName);
             final boolean success = baseState.rotateState(altStateName, rotateAir);
-            if (success)
-            {
+            if (success) {
                 buffer.writeBaseState(baseState);
-                if (broadcastMessage)
-                {
-                    baseState.getCurrentState().broadcastMessage();;
+                if (broadcastMessage) {
+                    baseState.getCurrentState().broadcastMessage();
                 }
             }
             return success;
@@ -188,5 +262,13 @@ public class StateController
         return false;
     }
 
+    /** @return True if the StateController has a valid buffer. False otherwise. */
+    public boolean isValid() {
+        return this.buffer.isValid();
+    }
 
+    /** @return True if the StateController buffer has been deleted entirely. False otherwise. */
+    public boolean destroy() {
+        return this.buffer.destroy();
+    }
 }
