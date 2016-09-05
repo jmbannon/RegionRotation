@@ -1,14 +1,14 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
+import net.projectzombie.region_rotation.commands.RRText;
 import net.projectzombie.region_rotation.modules.StateController;
-import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class AltStateRemove extends CommandExecution
+public class AltStateRemove extends StateExecution
 {
     private static AltStateRemove CMD = new AltStateRemove();
     static protected AltStateRemove cmd() {
@@ -23,7 +23,7 @@ public class AltStateRemove extends CommandExecution
     static private String _RemoveAltStateRegionDNE(final String regionNameDNE)
     {
         StringBuilder stb = new StringBuilder();
-        stb.append("Cannot remove AltState: ");
+        stb.append("Cannot destroy AltState: ");
         stb.append(RRText.formatRegionName(regionNameDNE));
         stb.append(' ');
         stb.append("does not exist.");
@@ -49,19 +49,19 @@ public class AltStateRemove extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender)
+                             final StateController controller)
     {
         final String baseStateName = args[1];
         final String altRegionName = args[2];
 
         final boolean success;
 
-        if (!StateController.instance().baseStateExists(baseStateName)) {
+        if (!controller.baseStateExists(baseStateName)) {
             return _RemoveAltStateRegionDNE(baseStateName);
-        } else if (!StateController.instance().altStateExists(baseStateName, altRegionName)) {
+        } else if (!controller.altStateExists(baseStateName, altRegionName)) {
             return _RemoveAltStateRegionDNE(altRegionName);
         } else {
-            success = StateController.instance().removeAltState(baseStateName, altRegionName);
+            success = controller.removeAltState(baseStateName, altRegionName);
             if (success) {
                 return _RemoveAltStateSuccess(altRegionName, baseStateName);
             } else {

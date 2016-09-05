@@ -1,16 +1,16 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
+import net.projectzombie.region_rotation.commands.RRText;
 import net.projectzombie.region_rotation.modules.StateController;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class AltStateAdd extends CommandExecution
+public class AltStateAdd extends StateExecution
 {
     private static AltStateAdd CMD = new AltStateAdd();
     static protected AltStateAdd cmd() {
@@ -25,8 +25,8 @@ public class AltStateAdd extends CommandExecution
     static private String _AddAltStateArgDNE(final String dneName)
     {
         StringBuilder stb = new StringBuilder();
-        stb.append("Cannot add AltState: ");
-        stb.append(dneName);
+        stb.append("Cannot create AltState: ");
+        stb.append(RRText.formatRegionName(dneName));
         stb.append(' ');
         stb.append("does not exist.");
         return stb.toString();
@@ -61,7 +61,7 @@ public class AltStateAdd extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender)
+                             final StateController controller)
     {
         final String baseStateName = args[1];
         final String altRegionName = args[2];
@@ -71,13 +71,12 @@ public class AltStateAdd extends CommandExecution
 
         if (altRegionWorld == null) {
             return _AddAltStateWorldDNE(args[3]);
-        } else if (!StateController.instance().baseStateExists(baseStateName)) {
+        } else if (!controller.baseStateExists(baseStateName)) {
             return _AddAltStateRegionDNE(baseStateName);
-        } else if (!StateController.instance().regionExists(altRegionName, altRegionWorld)) {
+        } else if (!controller.regionExists(altRegionName, altRegionWorld)) {
             return _AddAltStateRegionDNE(altRegionName);
         } else {
-            success = StateController.instance().addAltState(baseStateName,
-                    altRegionName, altRegionWorld);
+            success = controller.addAltState(baseStateName, altRegionName, altRegionWorld);
             if (success) {
                 return _AddAltStateSuccess(altRegionName, baseStateName);
             } else {

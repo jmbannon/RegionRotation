@@ -228,4 +228,13 @@ public class StateBuffer
             return false;
         }
     }
+
+    protected boolean destroy() {
+        this.isValid = false;
+        if (file != null) {
+            return file.delete();
+        } else {
+            return true;
+        }
+    }
 }

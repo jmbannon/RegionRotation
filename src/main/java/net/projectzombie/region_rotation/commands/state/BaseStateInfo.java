@@ -1,14 +1,14 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
+import net.projectzombie.region_rotation.commands.RRText;
 import net.projectzombie.region_rotation.modules.StateController;
-import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class BaseStateInfo extends CommandExecution
+public class BaseStateInfo extends StateExecution
 {
     private static BaseStateInfo CMD = new BaseStateInfo();
     static protected BaseStateInfo cmd() {
@@ -32,14 +32,14 @@ public class BaseStateInfo extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender)
+                             final StateController controller)
     {
         final String baseStateName = args[1];
 
-        if (!StateController.instance().baseStateExists(baseStateName)) {
+        if (!controller.baseStateExists(baseStateName)) {
             return _RemoveBaseStateRegionDNE(baseStateName);
         } else {
-            return StateController.instance().getBaseStateInfo(baseStateName);
+            return controller.getBaseStateInfo(baseStateName);
         }
     }
 }

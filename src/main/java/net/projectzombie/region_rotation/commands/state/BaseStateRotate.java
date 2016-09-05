@@ -1,14 +1,14 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
+import net.projectzombie.region_rotation.commands.RRText;
 import net.projectzombie.region_rotation.modules.StateController;
-import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class BaseStateRotate extends CommandExecution
+public class BaseStateRotate extends StateExecution
 {
     private static BaseStateRotate CMD = new BaseStateRotate();
     static protected BaseStateRotate cmd() {
@@ -49,7 +49,7 @@ public class BaseStateRotate extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender)
+                             final StateController controller)
     {
         final String baseStateName = args[1];
         final String altRegionName = args[2];
@@ -65,12 +65,12 @@ public class BaseStateRotate extends CommandExecution
             rotateAir = Boolean.valueOf(args[4]);
         }
 
-        if (!StateController.instance().baseStateExists(baseStateName)) {
+        if (!controller.baseStateExists(baseStateName)) {
             return _RotateStateDNE(baseStateName);
-        } else if (!StateController.instance().altStateExists(baseStateName, altRegionName)) {
+        } else if (!controller.altStateExists(baseStateName, altRegionName)) {
             return _RotateStateDNE(altRegionName);
         } else {
-            success = StateController.instance()
+            success = controller
                     .rotateBaseStateBroadcast(baseStateName, altRegionName, rotateAir, broadcast);
             if (success) {
                 return _RotateStateSuccess(altRegionName, baseStateName);

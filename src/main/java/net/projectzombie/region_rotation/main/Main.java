@@ -8,7 +8,7 @@ package net.projectzombie.region_rotation.main;
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 import net.projectzombie.region_rotation.commands.Commands;
-import net.projectzombie.region_rotation.modules.StateController;
+import net.projectzombie.region_rotation.modules.StateControllers;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,7 +28,7 @@ public class Main extends JavaPlugin
     public void onEnable()
     {
         PLUGIN = this;
-        StateController.init();
+        StateControllers.onEnable();
 
         PluginManager pm = getServer().getPluginManager();
         for (String perm : PERMISSIONS)
@@ -41,7 +41,7 @@ public class Main extends JavaPlugin
     @Override
     public void onDisable()
     {
-        StateController.instance().saveBaseStates();
+        StateControllers.onDisable();
         this.getLogger().info("RegionRotation disabled!");
     }
 }

@@ -1,16 +1,15 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
 import net.projectzombie.region_rotation.modules.StateController;
-import org.bukkit.command.CommandSender;
 
-import java.util.Set;
+import java.util.ArrayList;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class BaseStateList extends CommandExecution
+public class BaseStateList extends StateExecution
 {
     private static BaseStateList CMD = new BaseStateList();
     static protected BaseStateList cmd() {
@@ -28,15 +27,18 @@ public class BaseStateList extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender) {
+                             final StateController controller)
+    {
         final StringBuilder stb = new StringBuilder();
-        final Set<String> baseStateNames = StateController.instance().getBaseStateNames();
+        final ArrayList<String> baseStateNames = controller.getBaseStateNames();
 
         if (baseStateNames != null && baseStateNames.size() >= 1) {
-            for (String baseStateN : baseStateNames) {
-                stb.append(baseStateN);
+            stb.append("Base States:\n");
+            baseStateNames.forEach(name -> {
+                stb.append(" - ");
+                stb.append(name);
                 stb.append('\n');
-            }
+            });
             return stb.deleteCharAt(stb.length() - 1).toString();
         } else {
             return _NoBaseStates();

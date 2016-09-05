@@ -91,6 +91,10 @@ public abstract class RegionState extends RegionWorld
         }
     }
 
+    protected String getInfoID() {
+        return this.regionName + "@" + this.getWorld().getName();
+    }
+
     protected ProtectedRegion getProtectedRegion()
     {
         return super.getRegionManager().getRegion(regionName);

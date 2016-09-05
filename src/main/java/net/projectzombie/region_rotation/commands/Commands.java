@@ -1,10 +1,16 @@
 package net.projectzombie.region_rotation.commands;
 
+import net.projectzombie.region_rotation.commands.controller.ControllerExecution;
+import net.projectzombie.region_rotation.commands.state.*;
+import net.projectzombie.region_rotation.modules.StateController;
+import net.projectzombie.region_rotation.modules.StateControllers;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
+import static net.projectzombie.region_rotation.commands.controller.ControllerExecution.CONTROLLER_COMMANDS;
+import static net.projectzombie.region_rotation.commands.state.StateExecution.STATE_COMMANDS;
 
 /**
  * Location of all the commands for BaseState changes in-game.
@@ -12,29 +18,33 @@ import static net.projectzombie.region_rotation.commands.RRText.*;
  */
 public class Commands implements CommandExecutor
 {
-    static private final CommandExecution COMMANDS[] = {
-            AltStateAdd.cmd(),
-            AltStateRemove.cmd(),
-            BaseStateAdd.cmd(),
-            BaseStateRemove.cmd(),
-            BaseStateReset.cmd(),
-            BaseStateRotate.cmd(),
-            BaseStateInfo.cmd(),
-            BaseStateList.cmd()
-    };
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        boolean ranCommand = false;
+        StateController controller;
+        boolean ranCommand;
 
-        for (CommandExecution cmd : COMMANDS) {
-            ranCommand = cmd.run(args, sender);
-            if (ranCommand) {
-                break;
+        if (args.length == 0) {
+            RRText.formatToSender(sender, CONTROLLER_COMMAND_LIST);
+        } else {
+            for (ControllerExecution cmd : CONTROLLER_COMMANDS) {
+                ranCommand = cmd.run(args, sender);
+                if (ranCommand) {
+                    return true;
+                }
             }
-        }
-        if (!ranCommand) {
-            RRText.formatToSender(sender, COMMAND_LIST);
+
+            controller = StateControllers.get(args[0]);
+            if (controller != null) {
+                for (StateExecution cmd : STATE_COMMANDS) {
+                    ranCommand = cmd.run(args, sender, controller);
+                    if (ranCommand) {
+                        return true;
+                    }
+                }
+                RRText.formatToSender(sender, formatStateCommand(controller, STATE_COMMAND_LIST));
+            } else {
+                RRText.formatToSender(sender, formatControllerCommand(CONTROLLER_COMMAND_LIST));
+            }
         }
         return true;
     }

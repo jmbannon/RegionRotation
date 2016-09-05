@@ -1,14 +1,14 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.region_rotation.commands.state;
 
+import net.projectzombie.region_rotation.commands.RRText;
 import net.projectzombie.region_rotation.modules.StateController;
-import org.bukkit.command.CommandSender;
 
 import static net.projectzombie.region_rotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/4/16.
  */
-public class BaseStateReset extends CommandExecution
+public class BaseStateReset extends StateExecution
 {
     private static BaseStateReset CMD = new BaseStateReset();
     static protected BaseStateReset cmd() {
@@ -34,7 +34,7 @@ public class BaseStateReset extends CommandExecution
     {
         final StringBuilder stb = new StringBuilder();
         stb.append("Successfully reset ");
-        stb.append(RRText.formatRegionName(baseStateName));
+        stb.append(RRText.formatBaseStateName(baseStateName));
         stb.append(".");
         return stb.toString();
     }
@@ -46,7 +46,7 @@ public class BaseStateReset extends CommandExecution
 
     @Override
     protected String execute(final String args[],
-                             final CommandSender sender)
+                             final StateController controller)
     {
         final String baseStateName = args[1];
         final boolean broadcast;
@@ -58,10 +58,10 @@ public class BaseStateReset extends CommandExecution
             broadcast = false;
         }
 
-        if (!StateController.instance().baseStateExists(baseStateName)) {
+        if (!controller.baseStateExists(baseStateName)) {
             return _ResetBaseStateRegionDNE(baseStateName);
         } else {
-            success = StateController.instance().resetBaseState(baseStateName, broadcast);
+            success = controller.resetBaseState(baseStateName, broadcast);
             if (success) {
                 return _ResetBaseStateSuccess(baseStateName);
             } else {

@@ -1,5 +1,7 @@
 package net.projectzombie.region_rotation.modules;
 
+import net.projectzombie.region_rotation.commands.RRText;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,11 +124,6 @@ public class BaseState extends RegionState
     protected String getPath()
     {
         return baseStatePath(this.getRegionName(), this.getWorldUID());
-    }
-
-    protected String getAltStatePath(final String altStateName)
-    {
-        return altStatePath(this.getRegionName(), this.getWorldUID(), altStateName);
     }
 
     /** @return BASE_STATE_KEY.baseStateFileID.ALT_STATE_KEY */
@@ -283,43 +280,26 @@ public class BaseState extends RegionState
      */
     public String toString()
     {
-        final String rAndWSeparator = "@";
-
         StringBuilder builder = new StringBuilder();
 
-        // Main Region adding
-        builder.append("Main R: ");
-        builder.append(getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(getWorld().getName());
+        builder.append(RRText.formatTitle("Base Region: "));
+        builder.append(this.getInfoID());
+        builder.append('\n');
 
-        // Current region adding
-        builder.append(", Current: ");
-        builder.append(getCurrentState().getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(getCurrentState().getWorld().getName());
+        builder.append(RRText.formatTitle("Current Region: "));
+        builder.append(getCurrentState().getInfoID());
+        builder.append('\n');
 
-        // Backup state adding.
-        builder.append(", Backup: ");
-        builder.append(backupBaseState.getRegionName());
-        builder.append(rAndWSeparator);
-        builder.append(backupBaseState.getWorld().getName());
+        builder.append(RRText.formatTitle("Backup Region: "));
+        builder.append(this.backupBaseState.getInfoID());
+        builder.append('\n');
 
-        // Alts states being added.
-        if (altStates.isEmpty())
-            builder.append(", No alts.");
-        else
-        {
-            builder.append(", Alts: ");
-            for (AltState alt : altStates.values())
-            {
-                builder.append("-"); // Starter
-                builder.append(alt.getRegionName());
-                builder.append(rAndWSeparator);
-                builder.append(alt.getWorld().getName());
-                builder.append(" "); // Spacing the alts
-            }
-        }
+        builder.append(RRText.formatTitle("Alt Region(s):\n"));
+        altStates.values().forEach(alt -> {
+            builder.append(" - ");
+            builder.append(alt.getInfoID());
+            builder.append('\n');
+        });
 
         return builder.toString();
     }
