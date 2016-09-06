@@ -240,6 +240,13 @@ public abstract class RegionState extends RegionWorld
         return toFileID(this.regionName, this.getWorldUID());
     }
 
+    protected Location getLocation()
+    {
+        final Block blk = this.getSortedBlockIterator().next();
+        return (blk != null) ? blk.getLocation() : null;
+    }
+
+
     /**
      * Used to copy and paste a selected region to another selected region that is the same size.
      * @param copyState The place the blocks are coming from.

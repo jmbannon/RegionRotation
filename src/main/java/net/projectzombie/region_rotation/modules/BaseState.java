@@ -272,6 +272,11 @@ public class BaseState extends RegionState
         }
     }
 
+    protected AltState getAltState(final String altStateName)
+    {
+        return this.altStates.get(altStateName);
+    }
+
     /**
      * Rotates a BaseState to the specified swapState, and CPs air if rotateAir is true.
      * @param swapState The state becoming the new current.

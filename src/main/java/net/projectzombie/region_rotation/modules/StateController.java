@@ -2,6 +2,7 @@ package net.projectzombie.region_rotation.modules;
 
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Chest;
 
@@ -213,6 +214,24 @@ public class StateController
             }
         } else {
             return false;
+        }
+    }
+
+    public Location getBaseStateLocation(final String baseStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        return (baseState != null) ? baseState.getLocation() : null;
+    }
+
+    public Location getAltStateLocation(final String baseStateName,
+                                        final String altStateName)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        if (baseState != null) {
+            final RegionState alt = baseState.getAltState(altStateName);
+            return (alt != null) ? alt.getLocation() : null;
+        } else {
+            return null;
         }
     }
 
