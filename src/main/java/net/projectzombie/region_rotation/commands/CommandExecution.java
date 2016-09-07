@@ -28,13 +28,19 @@ public abstract class CommandExecution
         return "You do not have permission to perform this command.";
     }
 
-    final protected String getCommandArgs() {
+    final protected String getCommandArgs()
+    {
         return this.commandArgs;
     }
 
-    final protected String getPermission() {
+    final protected String getPermission()
+    {
         return this.permission;
     }
+
+    final protected int getNrArgs() { return nrArgs; }
+
+
 
     final protected boolean isCommand(final String args[])
     {

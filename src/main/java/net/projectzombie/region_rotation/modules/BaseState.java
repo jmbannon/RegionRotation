@@ -1,7 +1,6 @@
 package net.projectzombie.region_rotation.modules;
 
 import net.projectzombie.region_rotation.commands.RRText;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class BaseState extends RegionState
     /** @return BaseState path. [root.baseStateID] */
     static protected String baseStatePath(final String baseStateID, final UUID worldUID)
     {
-        return BASE_STATE_KEY + "." + RegionState.toFileID(baseStateID, worldUID);
+        return BASE_STATE_KEY + "." + RegionState.toBaseStateFileID(baseStateID, worldUID);
     }
 
     /** @return BaseState child path. [root.baseStateID.childType] */
@@ -153,6 +152,8 @@ public class BaseState extends RegionState
         return this.currentState.equals(this.getRegionName());
     }
 
+    protected AltState getBackupBaseState() { return backupBaseState; }
+
     /**
      * Adds an AltState that can be rotated with BaseState.
      * @param altRegionName WorldGuard region name of the AltState.
@@ -170,6 +171,32 @@ public class BaseState extends RegionState
         } else {
             return false;
         }
+    }
+
+    private boolean _changeBroadcast(final RegionState state,
+                                     final String broadcastMessage)
+    {
+        if (state != null)
+        {
+            state.setRotateBroadcastMessage(broadcastMessage);
+        }
+        return state != null;
+    }
+
+    public boolean changeStateBroadcast(final String altStateName,
+                                        final String broadcastMessage)
+    {
+        RegionState regionState = this.getAltState(altStateName);
+
+        return _changeBroadcast(regionState, broadcastMessage);
+    }
+
+    public boolean changeBaseStateBroadcast(final String broadcastMessage)
+    {
+        RegionState state = this.getBackupBaseState();
+
+        return _changeBroadcast(state, broadcastMessage)
+              && _changeBroadcast(this, broadcastMessage);
     }
 
     /**

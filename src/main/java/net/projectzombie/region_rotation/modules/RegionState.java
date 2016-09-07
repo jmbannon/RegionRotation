@@ -36,8 +36,15 @@ public abstract class RegionState extends RegionWorld
 {
     private static String FILE_ID_SEP = ",";
 
+
+    static protected String toStateFileID(final String regionName,
+                                          final UUID worldUUID, final String rotateBroadcastMessage)
+    {
+        return regionName + FILE_ID_SEP + worldUUID + FILE_ID_SEP + rotateBroadcastMessage;
+    }
+
     /** @return Constructs State ID in form of regionName + FILE_ID_SEP + worldUUID */
-    static protected String toFileID(final String regionName,
+    static protected String toBaseStateFileID(final String regionName,
                                      final UUID worldUUID)
     {
         return regionName + FILE_ID_SEP + worldUUID;
@@ -55,6 +62,13 @@ public abstract class RegionState extends RegionWorld
     {
         final String idSplit[] = iD.split(FILE_ID_SEP);
         return idSplit.length > 1 ? UUID.fromString(idSplit[1]) : null;
+    }
+
+    /** @return World UUID of state. */
+    static protected String toBroadcastMsg(String iD)
+    {
+        final String idSplit[] = iD.split(FILE_ID_SEP);
+        return idSplit.length > 2 ? idSplit[2] : "";
     }
 
     private final String regionName;
@@ -237,7 +251,7 @@ public abstract class RegionState extends RegionWorld
 
     protected String getFileID()
     {
-        return toFileID(this.regionName, this.getWorldUID());
+        return toStateFileID(this.regionName, this.getWorldUID(), this.rotateBroadcastMessage);
     }
 
     protected Location getLocation()

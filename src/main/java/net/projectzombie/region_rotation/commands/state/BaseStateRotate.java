@@ -62,7 +62,7 @@ public class BaseStateRotate extends StateExecution
             rotateAir = Boolean.valueOf(args[3]);
         }
         if (args.length == 5) {
-            rotateAir = Boolean.valueOf(args[4]);
+            broadcast = Boolean.valueOf(args[4]);
         }
 
         if (!controller.baseStateExists(baseStateName)) {

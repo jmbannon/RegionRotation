@@ -217,6 +217,21 @@ public class StateController
         }
     }
 
+    public boolean changeStateBroadcast(final String baseStateName, final String altStateName,
+                                        final String broadcastMessage)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        return baseState != null &&
+               baseState.changeStateBroadcast(altStateName, broadcastMessage);
+    }
+
+    public boolean changeBaseStateBroadcast(final String baseStateName,
+                                            final String broadcastMessage)
+    {
+        final BaseState baseState = states.get(baseStateName);
+        return baseState != null && baseState.changeBaseStateBroadcast(broadcastMessage);
+    }
+
     public Location getBaseStateLocation(final String baseStateName)
     {
         final BaseState baseState = states.get(baseStateName);

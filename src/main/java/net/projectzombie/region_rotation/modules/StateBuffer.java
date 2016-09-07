@@ -107,11 +107,16 @@ public class StateBuffer
             // Adding all the altStates
             if (altStateIDs != null)
             {
-                for (String altStateID : altStateIDs)
+                for (String altStateID : altStateIDs) {
                     baseState.addAltState(BaseState.toRegion(altStateID),
                             BaseState.toWorldUID(altStateID));
+                    baseState.changeStateBroadcast(BaseState.toRegion(altStateID),
+                                                   BaseState.toBroadcastMsg(altStateID));
+                }
             }
-            baseState.rotateState(currentState, false); // Don't erase built things.
+            baseState.rotateState(BaseState.toRegion(currentState), false); // Don't erase built things.
+            baseState.changeBaseStateBroadcast(BaseState.toBroadcastMsg(backupBaseStateID));
+            baseState.setRotateBroadcastMessage(BaseState.toBroadcastMsg(backupBaseStateID));
         }
 
         return baseState;

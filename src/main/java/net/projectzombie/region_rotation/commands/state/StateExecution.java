@@ -18,7 +18,8 @@ public abstract class StateExecution extends CommandExecution
             BaseStateReset.cmd(),
             BaseStateRotate.cmd(),
             BaseStateInfo.cmd(),
-            BaseStateList.cmd()
+            BaseStateList.cmd(),
+            ChangeStateBroadcast.cmd()
     };
 
     protected StateExecution(final String arg,
