@@ -13,6 +13,7 @@ import static net.projectzombie.region_rotation.commands.RRText.*;
 public class SetStateBroadcast extends StateExecution
 {
     public static final String BACKUP_STATE_REFERENCE = "backup";
+    public static final String UNSET_BROADCAST_REFERENCE = "unset";
     private static SetStateBroadcast CMD = new SetStateBroadcast();
     static protected SetStateBroadcast cmd() { return CMD; }
 
@@ -76,6 +77,7 @@ public class SetStateBroadcast extends StateExecution
             builder.append(args[i]);
         }
         String broadcastMsg = builder.toString().trim();
+        broadcastMsg = !broadcastMsg.equalsIgnoreCase(UNSET_BROADCAST_REFERENCE) ? broadcastMsg : null;
 
         final boolean success;
 

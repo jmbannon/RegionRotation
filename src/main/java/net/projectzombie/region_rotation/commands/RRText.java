@@ -65,7 +65,7 @@ public class RRText
         return "/" + COMMAND_ROOT + " " + txt;
     }
 
-    static protected String formatStateCommand(final String txt)
+    static public String formatStateCommand(final String txt)
     {
         return "/" + COMMAND_ROOT + " <c> " + txt;
     }
@@ -126,7 +126,7 @@ public class RRText
     ROTATE_BASESTATE_HELP       = "rotate <rName> <alt rName> <rotate air = T> <broadcast = F>",
     INFO_BASESTATE_HELP         = "info <rName>",
     LIST_BASESTATE_HELP         = "list",
-    SET_BROADCAST_HELP          = "setbroadcast <rName> <world> <stateName or backup> <BMsg...>",
+    SET_BROADCAST_HELP          = "setbroadcast <rName> <world> <stateName or backup> <unset or Msg...>",
 
     CREATE_CONTROLLER_HELP      = "create <cName>",
     DESTROY_CONTROLLER_HELP     = "destroy <cName>",

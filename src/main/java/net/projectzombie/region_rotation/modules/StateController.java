@@ -222,14 +222,16 @@ public class StateController
     {
         final BaseState baseState = states.get(baseStateName);
         return baseState != null &&
-               baseState.changeStateBroadcast(altStateName, broadcastMessage);
+               baseState.changeStateBroadcast(altStateName, broadcastMessage) &&
+               this.buffer.writeBaseState(baseState);
     }
 
     public boolean changeBaseStateBroadcast(final String baseStateName,
                                             final String broadcastMessage)
     {
         final BaseState baseState = states.get(baseStateName);
-        return baseState != null && baseState.changeBaseStateBroadcast(broadcastMessage);
+        return baseState != null && baseState.changeBaseStateBroadcast(broadcastMessage) &&
+                this.buffer.writeBaseState(baseState);
     }
 
     public Location getBaseStateLocation(final String baseStateName)
