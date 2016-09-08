@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.inventory.InventoryHolder;
 
 import java.util.ArrayList;
@@ -38,14 +39,7 @@ public abstract class RegionState extends RegionWorld
 
 
     static protected String toStateFileID(final String regionName,
-                                          final UUID worldUUID, final String rotateBroadcastMessage)
-    {
-        return regionName + FILE_ID_SEP + worldUUID + FILE_ID_SEP + rotateBroadcastMessage;
-    }
-
-    /** @return Constructs State ID in form of regionName + FILE_ID_SEP + worldUUID */
-    static protected String toBaseStateFileID(final String regionName,
-                                     final UUID worldUUID)
+                                          final UUID worldUUID)
     {
         return regionName + FILE_ID_SEP + worldUUID;
     }
@@ -62,13 +56,6 @@ public abstract class RegionState extends RegionWorld
     {
         final String idSplit[] = iD.split(FILE_ID_SEP);
         return idSplit.length > 1 ? UUID.fromString(idSplit[1]) : null;
-    }
-
-    /** @return World UUID of state. */
-    static protected String toBroadcastMsg(String iD)
-    {
-        final String idSplit[] = iD.split(FILE_ID_SEP);
-        return idSplit.length > 2 ? idSplit[2] : "";
     }
 
     private final String regionName;
@@ -251,7 +238,7 @@ public abstract class RegionState extends RegionWorld
 
     protected String getFileID()
     {
-        return toStateFileID(this.regionName, this.getWorldUID(), this.rotateBroadcastMessage);
+        return toStateFileID(this.regionName, this.getWorldUID());
     }
 
     protected Location getLocation()
@@ -313,6 +300,14 @@ public abstract class RegionState extends RegionWorld
                     Chest copyChest = (Chest) copyBlk.getState();
                     Chest pasteChest = (Chest) pasteBlk.getState();
                     pasteChest.getInventory().setContents(copyChest.getInventory().getContents());
+                }
+                else if (copyBlk.getState() instanceof Skull) {
+                    Skull copySkull = (Skull) copyBlk.getState();
+                    Skull pasteSkull = (Skull) pasteBlk.getState();
+
+                    pasteSkull.setOwner(copySkull.getOwner()); // Changes in 1.10.2
+                    pasteSkull.setRotation(copySkull.getRotation());
+                    pasteSkull.setSkullType(copySkull.getSkullType());
                 }
                 else if (copyBlk.getState() instanceof Sign)
                 {

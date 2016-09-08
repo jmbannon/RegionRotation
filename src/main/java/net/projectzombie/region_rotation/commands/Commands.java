@@ -13,7 +13,7 @@ import static net.projectzombie.region_rotation.commands.controller.ControllerEx
 import static net.projectzombie.region_rotation.commands.state.StateExecution.STATE_COMMANDS;
 
 /**
- * Used to handel commands and branch them out to their respective channels.
+ * Used to handle commands and branch them out to their respective channels.
  * @author jmbannon
  */
 public class Commands implements CommandExecutor
