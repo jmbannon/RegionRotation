@@ -1,10 +1,10 @@
 package net.projectzombie.region_rotation.modules;
 
 import net.projectzombie.region_rotation.commands.RRText;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -27,9 +27,9 @@ public class BaseState extends RegionState
     }
 
     /** @return BaseState path. [root.baseStateID] */
-    static protected String baseStatePath(final String baseStateID, final UUID worldUID)
+    static protected String baseStatePath(final String baseStateName, final UUID worldUID)
     {
-        return BASE_STATE_KEY + "." + RegionState.toFileID(baseStateID, worldUID);
+        return BASE_STATE_KEY + "." + RegionState.toStateFileID(baseStateName, worldUID);
     }
 
     /** @return BaseState child path. [root.baseStateID.childType] */
@@ -41,18 +41,18 @@ public class BaseState extends RegionState
     }
 
     /** @return AltStates path. [root.baseStateID.altPath] */
-    static protected String altStatesPath(final String baseStateID,
+    static protected String altStatesPath(final String baseStateName,
                                           final UUID worldUID)
     {
-        return _getChildPath(baseStateID, worldUID, ALT_STATE_KEY);
+        return _getChildPath(baseStateName, worldUID, ALT_STATE_KEY);
     }
 
     /** @return AltState path. [root.baseStateID.altPath.altStateID] */
-    static protected String altStatePath(final String baseStateID,
+    static protected String altStatePath(final String baseStateName,
                                           final UUID worldUID,
                                           final String altStateID)
     {
-        return altStatesPath(baseStateID, worldUID) + "." + altStateID;
+        return altStatesPath(baseStateName, worldUID) + "." + altStateID;
     }
 
     /** @return CurrentState path. [root.baseStateID.currentPath] */
@@ -63,10 +63,18 @@ public class BaseState extends RegionState
     }
 
     /** @return BackupState path. [root.baseStateID.backupPath] */
-    static protected String backupStatePath(final String baseStateID,
+    static protected String backupStatePath(final String baseStateName,
                                             final UUID worldUID)
     {
-        return _getChildPath(baseStateID, worldUID, BACKUP_STATE_KEY);
+        return _getChildPath(baseStateName, worldUID, BACKUP_STATE_KEY);
+    }
+
+    /** @return BackupState path. [root.baseStateID.backupPath] */
+    static protected String backupBroadcastPath(final String baseStateID,
+                                                final UUID worldUID,
+                                                final String backupStateID)
+    {
+        return backupStatePath(baseStateID, worldUID) + "." + backupStateID;
     }
 
     /** AltState's belong to a single BaseState: a BaseState can rotate to an AltState. */
@@ -132,10 +140,22 @@ public class BaseState extends RegionState
         return altStatesPath(this.getRegionName(), this.getWorldUID());
     }
 
+    /** @return BASE_STATE_KEY.baseStateFileID.ALT_STATE_KEY */
+    protected String getAltStatePath(final String stateID)
+    {
+        return altStatePath(this.getRegionName(), this.getWorldUID(), stateID);
+    }
+
     /** @return BASE_STATE_KEY.baseStateFileID.BACKUP_STATE_KEY */
     protected String getBackupStatePath()
     {
         return backupStatePath(this.getRegionName(), this.getWorldUID());
+    }
+
+    /** @return BASE_STATE_KEY.baseStateFileID.BACKUP_STATE_KEY */
+    protected String getBackupBroadcastPath()
+    {
+        return backupBroadcastPath(this.getRegionName(), this.getWorldUID(), this.getBackupStateFileID());
     }
 
     /** @return BASE_STATE_KEY.baseStateFileID.CURRENT_STATE_KEY */
@@ -152,6 +172,10 @@ public class BaseState extends RegionState
     protected boolean isRotated() {
         return this.currentState.equals(this.getRegionName());
     }
+
+    protected AltState getBackupBaseState() { return backupBaseState; }
+
+    protected String getBackupBroadcast() { return backupBaseState.getRotateBroadcastMessage(); }
 
     /**
      * Adds an AltState that can be rotated with BaseState.
@@ -170,6 +194,33 @@ public class BaseState extends RegionState
         } else {
             return false;
         }
+    }
+
+    private boolean _changeBroadcast(final RegionState state,
+                                     final String broadcastMessage)
+    {
+        if (state != null)
+        {
+            state.setRotateBroadcastMessage(broadcastMessage);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean changeStateBroadcast(final String altStateName,
+                                        final String broadcastMessage)
+    {
+        RegionState regionState = this.getAltState(altStateName);
+
+        return _changeBroadcast(regionState, broadcastMessage);
+    }
+
+    public boolean changeBaseStateBroadcast(final String broadcastMessage)
+    {
+        RegionState state = this.getBackupBaseState();
+
+        return _changeBroadcast(state, broadcastMessage)
+              && _changeBroadcast(this, broadcastMessage);
     }
 
     /**
@@ -204,6 +255,14 @@ public class BaseState extends RegionState
     {
         ArrayList<String> holder = new ArrayList<>();
         altStates.values().forEach(alt -> holder.add(alt.getFileID()));
+        return holder;
+    }
+
+    protected Map<String, String> getAltMapOfIDToBroadcast()
+    {
+        Map<String, String> holder = new HashMap<>();
+        altStates.values().forEach(alt -> holder.put(alt.getFileID(),
+                                                     alt.getRotateBroadcastMessage()));
         return holder;
     }
 

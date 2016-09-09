@@ -13,8 +13,8 @@ import static net.projectzombie.region_rotation.commands.controller.ControllerEx
 import static net.projectzombie.region_rotation.commands.state.StateExecution.STATE_COMMANDS;
 
 /**
- * Location of all the commands for BaseState changes in-game.
- * @author Gephery
+ * Used to handle commands and branch them out to their respective channels.
+ * @author jmbannon
  */
 public class Commands implements CommandExecutor
 {
@@ -32,7 +32,6 @@ public class Commands implements CommandExecutor
                     return true;
                 }
             }
-
             controller = StateControllers.get(args[0]);
             if (controller != null) {
                 for (StateExecution cmd : STATE_COMMANDS) {

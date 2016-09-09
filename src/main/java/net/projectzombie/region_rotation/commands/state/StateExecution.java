@@ -18,7 +18,8 @@ public abstract class StateExecution extends CommandExecution
             BaseStateReset.cmd(),
             BaseStateRotate.cmd(),
             BaseStateInfo.cmd(),
-            BaseStateList.cmd()
+            BaseStateList.cmd(),
+            SetStateBroadcast.cmd()
     };
 
     protected StateExecution(final String arg,
@@ -66,7 +67,7 @@ public abstract class StateExecution extends CommandExecution
             if (!this.hasPermission(sender) && !this.hasPermission(sender, controller)) {
                 messageToSend = getNoPermissionMsg();
             } else if (!this.hasValidArgLength(args)) {
-                messageToSend = this.getCommandArgs();
+                messageToSend = RRText.formatStateCommand(this.getCommandArgs());
             } else {
                 messageToSend = this.execute(args, controller);
             }

@@ -7,7 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Collection;
@@ -17,6 +17,8 @@ import java.util.Collection;
  */
 public class StateBuffer
 {
+    private static final String BROADCAST_PLACEHOLDER = "NULL";
+
     private File file;
     private YamlConfiguration yml;
     private boolean isValid;
@@ -89,13 +91,14 @@ public class StateBuffer
         String pathToBaseState = BaseState.baseStatePath(regionName, worldUID);
         String pathToBackupS = BaseState.backupStatePath(regionName, worldUID);
         String pathToCurrentS = BaseState.currentStatePath(regionName, worldUID);
-        String pathToAltState = BaseState.altStatesPath(regionName, worldUID);
+        String pathToAltStates = BaseState.altStatesPath(regionName, worldUID);
 
         if (this.yml.contains(pathToBaseState))
         {
-            List<String> altStateIDs = this.yml.getStringList(pathToAltState);
+            Set<String> altStateIDs = this.yml.getConfigurationSection(pathToAltStates)
+                                                                            .getKeys(false);
 
-            String backupBaseStateID = this.yml.getString(pathToBackupS);
+            String backupBaseStateID = this.yml.getConfigurationSection(pathToBackupS).getKeys(false).iterator().next();
             String backupBaseRegion = BaseState.toRegion(backupBaseStateID);
             UUID backupBaseUID = BaseState.toWorldUID(backupBaseStateID);
 
@@ -104,14 +107,23 @@ public class StateBuffer
             // Constructing baseState base.
             baseState = new BaseState(regionName, worldUID, backupBaseRegion, backupBaseUID);
 
+            String backupBroadcast = this.yml.getString(baseState.getBackupBroadcastPath());
+            backupBroadcast = !backupBroadcast.equals(BROADCAST_PLACEHOLDER) ? backupBroadcast : null;
+
             // Adding all the altStates
             if (altStateIDs != null)
             {
-                for (String altStateID : altStateIDs)
-                    baseState.addAltState(BaseState.toRegion(altStateID),
+                for (String altStateID : altStateIDs) {
+                    String altRegionName = BaseState.toRegion(altStateID);
+                    String altBroadcast = !this.yml.getString(baseState.getAltStatePath(altStateID)).equals(BROADCAST_PLACEHOLDER) ?
+                                          this.yml.getString(baseState.getAltStatePath(altStateID)) : null;
+                    baseState.addAltState(altRegionName,
                             BaseState.toWorldUID(altStateID));
+                    baseState.changeStateBroadcast(altRegionName, altBroadcast);
+                }
             }
             baseState.rotateState(currentState, false); // Don't erase built things.
+            baseState.changeBaseStateBroadcast(backupBroadcast);
         }
 
         return baseState;
@@ -164,13 +176,20 @@ public class StateBuffer
     protected boolean writeBaseState(final BaseState baseState)
     {
         // Write alts
-        this.yml.set(baseState.getAltStatePath(), baseState.getAltStateFileIDs());
+        Map<String, String> alts = baseState.getAltMapOfIDToBroadcast();
+        //this.yml.set(baseState.getAltStatePath(), baseState.getAltStateFileIDs());
+        for (String altID : alts.keySet()) {
+            this.yml.set(baseState.getAltStatePath(altID), alts.get(altID) != null ? alts.get(altID) : BROADCAST_PLACEHOLDER);
+        }
 
         // Write backup
         this.yml.set(baseState.getBackupStatePath(), baseState.getBackupStateFileID());
+        this.yml.set(baseState.getBackupBroadcastPath(), baseState.getBackupBroadcast() != null ?
+                                                         baseState.getBackupBroadcast() :
+                                                         BROADCAST_PLACEHOLDER);
 
         // Write current state
-        this.yml.set(baseState.getCurrentStatePath(), baseState.getCurrentState().getFileID());
+        this.yml.set(baseState.getCurrentStatePath(), baseState.getCurrentState().getRegionName());
 
         return this.saveFile();
     }

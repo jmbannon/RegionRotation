@@ -65,7 +65,7 @@ public class RRText
         return "/" + COMMAND_ROOT + " " + txt;
     }
 
-    static protected String formatStateCommand(final String txt)
+    static public String formatStateCommand(final String txt)
     {
         return "/" + COMMAND_ROOT + " <c> " + txt;
     }
@@ -95,6 +95,7 @@ public class RRText
     ROTATE_BASESTATE_CMD        = "rotate",
     INFO_BASESTATE_CMD          = "info",
     LIST_BASESTATE_CMD          = "list",
+    SET_BROADCAST_CMD           = "setbroadcast",
 
     CREATE_CONTROLLER_CMD       = "create",
     DESTROY_CONTROLLER_CMD      = "destroy",
@@ -108,12 +109,13 @@ public class RRText
     ROTATE_BASESTATE_PERM       = "rotate",
     INFO_BASESTATE_PERM         = "info",
     LIST_BASESTATE_PERM         = "list",
+    SET_BROADCAST_PERM          = "setbroadcast",
 
     CREATE_CONTROLLER_PERM      = "controller.create",
     DESTROY_CONTROLLER_PERM     = "controller.destroy",
     LIST_CONTROLLER_PERM        = "controller.list",
 
-    STATE_COMMAND_LIST          = "<create:addalt:destroy:removealt:reset:rotate:info:list>",
+    STATE_COMMAND_LIST          = "<create:addalt:destroy:removealt:reset:rotate:info:list:setbroadcast>",
     CONTROLLER_COMMAND_LIST     = "<" + formatControllerName("cName") + ":create:destroy:list>",
 
     ADD_BASESTATE_HELP          = "create <rName> <world> <backup rName> <backup world>",
@@ -124,6 +126,7 @@ public class RRText
     ROTATE_BASESTATE_HELP       = "rotate <rName> <alt rName> <rotate air = T> <broadcast = F>",
     INFO_BASESTATE_HELP         = "info <rName>",
     LIST_BASESTATE_HELP         = "list",
+    SET_BROADCAST_HELP          = "setbroadcast <rName> <world> <stateName or backup> <unset or Msg...>",
 
     CREATE_CONTROLLER_HELP      = "create <cName>",
     DESTROY_CONTROLLER_HELP     = "destroy <cName>",
@@ -138,6 +141,7 @@ public class RRText
         ROTATE_BASESTATE_PERM,
         INFO_BASESTATE_PERM,
         LIST_BASESTATE_PERM,
+        SET_BROADCAST_PERM,
         CREATE_CONTROLLER_PERM,
         DESTROY_CONTROLLER_PERM,
         LIST_CONTROLLER_PERM
