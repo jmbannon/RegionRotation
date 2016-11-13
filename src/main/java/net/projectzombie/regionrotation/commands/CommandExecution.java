@@ -1,4 +1,4 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.regionrotation.commands;
 
 import org.bukkit.command.CommandSender;
 

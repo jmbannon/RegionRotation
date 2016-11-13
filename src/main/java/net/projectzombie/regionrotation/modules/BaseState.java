@@ -1,6 +1,6 @@
-package net.projectzombie.region_rotation.modules;
+package net.projectzombie.regionrotation.modules;
 
-import net.projectzombie.region_rotation.commands.RRText;
+import net.projectzombie.regionrotation.commands.RRText;
 
 import java.util.ArrayList;
 import java.util.HashMap;

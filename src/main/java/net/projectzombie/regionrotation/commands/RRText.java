@@ -1,7 +1,7 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.regionrotation.commands;
 
 import net.projectzombie.consistentchatapi.PluginChat;
-import net.projectzombie.region_rotation.modules.StateController;
+import net.projectzombie.regionrotation.modules.StateController;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

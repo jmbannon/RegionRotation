@@ -1,4 +1,4 @@
-package net.projectzombie.region_rotation.modules;
+package net.projectzombie.regionrotation.modules;
 
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.managers.RegionManager;

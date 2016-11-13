@@ -1,8 +1,8 @@
-package net.projectzombie.region_rotation.commands.state;
+package net.projectzombie.regionrotation.commands.state;
 
-import net.projectzombie.region_rotation.commands.CommandExecution;
-import net.projectzombie.region_rotation.commands.RRText;
-import net.projectzombie.region_rotation.modules.StateController;
+import net.projectzombie.regionrotation.commands.CommandExecution;
+import net.projectzombie.regionrotation.commands.RRText;
+import net.projectzombie.regionrotation.modules.StateController;
 import org.bukkit.command.CommandSender;
 
 /**

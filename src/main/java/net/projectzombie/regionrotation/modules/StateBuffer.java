@@ -1,4 +1,4 @@
-package net.projectzombie.region_rotation.modules;
+package net.projectzombie.regionrotation.modules;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -6,11 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Created by jb on 8/25/16.
@@ -95,9 +91,7 @@ public class StateBuffer
 
         if (this.yml.contains(pathToBaseState))
         {
-            Set<String> altStateIDs = this.yml.getConfigurationSection(pathToAltStates)
-                                                                            .getKeys(false);
-
+            Set<String> altStateIDs = this.yml.getConfigurationSection(pathToAltStates).getKeys(false);
             String backupBaseStateID = this.yml.getConfigurationSection(pathToBackupS).getKeys(false).iterator().next();
             String backupBaseRegion = BaseState.toRegion(backupBaseStateID);
             UUID backupBaseUID = BaseState.toWorldUID(backupBaseStateID);

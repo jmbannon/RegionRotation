@@ -1,11 +1,11 @@
-package net.projectzombie.region_rotation.commands.controller;
+package net.projectzombie.regionrotation.commands.controller;
 
-import net.projectzombie.region_rotation.commands.RRText;
-import net.projectzombie.region_rotation.modules.StateControllers;
+import net.projectzombie.regionrotation.commands.RRText;
+import net.projectzombie.regionrotation.modules.StateControllers;
 
 import java.util.ArrayList;
 
-import static net.projectzombie.region_rotation.commands.RRText.*;
+import static net.projectzombie.regionrotation.commands.RRText.*;
 
 /**
  * Created by jb on 9/5/16.

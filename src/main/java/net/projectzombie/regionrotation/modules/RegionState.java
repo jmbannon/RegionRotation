@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.projectzombie.region_rotation.modules;
+package net.projectzombie.regionrotation.modules;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.LocalWorld;

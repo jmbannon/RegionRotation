@@ -15,7 +15,7 @@ Please fork our repository and send a pull request with a meaningful feature/pat
 
 ### User Guide for API
 Terms:
-  BaseState = The main attraction, the region and all its AltStates. 
+  BaseState = The net.projectzombie.crackshot_enhanced.net.projectzombie.main attraction, the region and all its AltStates.
   AltState  = The sub regions that the BaseState can change to. 
   StateController = API which makes all the server BaseStates accessable. 
 To use the StateController use "StateController.instance().methodYouWant()" in a java environment. And that is it.

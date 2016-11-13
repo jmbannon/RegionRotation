@@ -1,16 +1,16 @@
-package net.projectzombie.region_rotation.commands;
+package net.projectzombie.regionrotation.commands;
 
-import net.projectzombie.region_rotation.commands.controller.ControllerExecution;
-import net.projectzombie.region_rotation.commands.state.*;
-import net.projectzombie.region_rotation.modules.StateController;
-import net.projectzombie.region_rotation.modules.StateControllers;
+import net.projectzombie.regionrotation.commands.controller.ControllerExecution;
+import net.projectzombie.regionrotation.commands.state.*;
+import net.projectzombie.regionrotation.modules.StateController;
+import net.projectzombie.regionrotation.modules.StateControllers;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import static net.projectzombie.region_rotation.commands.RRText.*;
-import static net.projectzombie.region_rotation.commands.controller.ControllerExecution.CONTROLLER_COMMANDS;
-import static net.projectzombie.region_rotation.commands.state.StateExecution.STATE_COMMANDS;
+import static net.projectzombie.regionrotation.commands.RRText.*;
+import static net.projectzombie.regionrotation.commands.controller.ControllerExecution.CONTROLLER_COMMANDS;
+import static net.projectzombie.regionrotation.commands.state.StateExecution.STATE_COMMANDS;
 
 /**
  * Used to handle commands and branch them out to their respective channels.

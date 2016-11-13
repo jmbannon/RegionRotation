@@ -1,12 +1,12 @@
-package net.projectzombie.region_rotation.modules;
+package net.projectzombie.regionrotation.modules;
 
-import net.projectzombie.region_rotation.main.Main;
+import net.projectzombie.regionrotation.main.Main;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static net.projectzombie.region_rotation.commands.RRText.CONTROLLER_NAME_REGEX_MATCH;
+import static net.projectzombie.regionrotation.commands.RRText.CONTROLLER_NAME_REGEX_MATCH;
 
 /**
  * Created by jb on 9/4/16.

@@ -1,11 +1,11 @@
-package net.projectzombie.region_rotation.commands.state;
+package net.projectzombie.regionrotation.commands.state;
 
-import net.projectzombie.region_rotation.commands.RRText;
-import net.projectzombie.region_rotation.modules.StateController;
+import net.projectzombie.regionrotation.commands.RRText;
+import net.projectzombie.regionrotation.modules.StateController;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import static net.projectzombie.region_rotation.commands.RRText.*;
+import static net.projectzombie.regionrotation.commands.RRText.*;
 
 /**
  * Created by maxgr on 9/7/2016.

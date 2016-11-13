@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.projectzombie.region_rotation.main;
+package net.projectzombie.regionrotation.main;
 
-import static net.projectzombie.region_rotation.commands.RRText.*;
+import static net.projectzombie.regionrotation.commands.RRText.*;
 
-import net.projectzombie.region_rotation.commands.Commands;
-import net.projectzombie.region_rotation.modules.StateControllers;
+import net.projectzombie.regionrotation.commands.Commands;
+import net.projectzombie.regionrotation.modules.StateControllers;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
